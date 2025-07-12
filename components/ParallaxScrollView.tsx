@@ -4,7 +4,7 @@ import Animated, {
   interpolate,
   useAnimatedRef,
   useAnimatedStyle,
-  useScrollViewOffset
+  useScrollViewOffset,
 } from 'react-native-reanimated';
 
 import { ThemedView } from '@/components/ThemedView';
@@ -51,7 +51,7 @@ export default function ParallaxScrollView({
         scrollEventThrottle={16}
         scrollIndicatorInsets={{ bottom }}
         contentContainerStyle={{ paddingBottom: bottom }}>
-        
+
         {headerImage && (
           <Animated.View
             style={[
@@ -63,6 +63,7 @@ export default function ParallaxScrollView({
             {headerImage}
           </Animated.View>
         )}
+        
         <ThemedView style={styles.content}>{children}</ThemedView>
       </Animated.ScrollView>
     </ThemedView>
