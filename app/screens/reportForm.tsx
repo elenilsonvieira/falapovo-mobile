@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5576744b6ff96019d50b556115b6ccc8b28233e5
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useState } from 'react'
 import { Alert, Image, KeyboardAvoidingView, PermissionsAndroid, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
@@ -39,7 +42,10 @@ export default function ReportForm() {
       if (!message || !selectedCategory) return
 
       const newReport: IReport = {
+<<<<<<< HEAD
         
+=======
+>>>>>>> 5576744b6ff96019d50b556115b6ccc8b28233e5
         id: Math.floor(Math.random() * 100000),
         message,
         category: selectedCategory,
@@ -55,8 +61,12 @@ export default function ReportForm() {
       setLocation('')
       setSelectedCategory('')
       setPhotoUri(null)
+<<<<<<< HEAD
      
       router.replace('/(tabs)/reportsList' as any)
+=======
+      router.replace('/(tabs)/reportsList')
+>>>>>>> 5576744b6ff96019d50b556115b6ccc8b28233e5
     } catch (error) {
       console.error('Erro ao salvar:', error)
     }
@@ -67,6 +77,7 @@ export default function ReportForm() {
     setLocation('')
     setSelectedCategory('')
     setPhotoUri(null)
+<<<<<<< HEAD
     
     router.replace('/(tabs)/reportsList' as any)
   }
@@ -75,6 +86,12 @@ export default function ReportForm() {
     if (Platform.OS !== 'android') {
         return true;
     }
+=======
+    router.replace('/(tabs)/reportsList')
+  }
+
+  const requestCameraPermission = async (): Promise<boolean> => {
+>>>>>>> 5576744b6ff96019d50b556115b6ccc8b28233e5
     try {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.CAMERA,
@@ -92,6 +109,10 @@ export default function ReportForm() {
       return false
     }
   }
+<<<<<<< HEAD
+=======
+  
+>>>>>>> 5576744b6ff96019d50b556115b6ccc8b28233e5
 
   const selectImage = () => {
     Alert.alert('Selecionar Imagem', 'Escolha uma opção', [
