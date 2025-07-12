@@ -1,7 +1,5 @@
-
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useFocusEffect } from '@react-navigation/native'
-import { router } from 'expo-router'
 import { useCallback, useState } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
@@ -11,6 +9,9 @@ import Report from '@/components/report/Report'
 import { ThemedText } from '@/components/ThemedText'
 import { ThemedView } from '@/components/ThemedView'
 import { IReport } from '@/interfaces/IReport'
+
+import { router } from 'expo-router'
+
 
 export default function ReportsList() {
   const [reports, setReports] = useState<IReport[]>([])
@@ -47,7 +48,7 @@ export default function ReportsList() {
   )
 
   const openForm = () => {
-    router.push('/screens/reportForm' as any)
+    router.push('/screens/reportForm')
   }
 
   return (
@@ -55,15 +56,15 @@ export default function ReportsList() {
       <View style={styles.filterContainer}>
         <ThemedText style={styles.filterLabel}>Filtrar:</ThemedText>
         <DropDownPicker
-          open={open}
-          value={filter}
-          items={items}
-          setOpen={setOpen}
-          setValue={setFilter}
-          setItems={setItems}
-          style={styles.dropdown}
-          dropDownContainerStyle={styles.dropdownContainer}
-          zIndex={1000}
+            open={open}
+            value={filter}
+            items={items}
+            setOpen={setOpen}
+            setValue={setFilter}
+            setItems={setItems}
+            style={styles.dropdown}
+            dropDownContainerStyle={styles.dropdownContainer}
+            zIndex={1000}
         />
       </View>
 
@@ -71,16 +72,16 @@ export default function ReportsList() {
         <ParallaxScrollView headerBackgroundColor={{ light: '#ECECEC', dark: '#202020' }}>
           <View style={styles.container}>
             {reports.length > 0 ? reports.map(report => (
-              <Report
-                key={report.id}
-                message={report.message}
-                category={report.category}
-                location={report.location}
-                date={report.createdAt}
-                image={report.image}
-              />
+                <Report
+                  key={report.id}
+                  message={report.message}
+                  category={report.category}
+                  location={report.location}
+                  date={report.createdAt}
+                  image={report.image}
+                />
             )) : <ThemedText style={styles.noReport}>Nenhum registro!</ThemedText>
-            }
+        }
           </View>
         </ParallaxScrollView>
       </View>
@@ -99,9 +100,8 @@ const styles = StyleSheet.create({
   filterContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     marginTop: 40,
-    paddingHorizontal: 20,
+    paddingHorizontal: 150,
     zIndex: 1000,
     gap: 8,
     paddingVertical: 8,
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   filterLabel: {
     fontSize: 16,
     fontWeight: '600'
-  },
+  },  
   dropdown: {
     width: 150,
     height: 42,
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   dropdownContainer: {
     width: 150,
     zIndex: 1000
-  },
+  },  
   addButton: {
     position: 'absolute',
     bottom: 20,
