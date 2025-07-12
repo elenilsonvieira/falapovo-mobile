@@ -1,12 +1,7 @@
-<<<<<<< HEAD
 
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useFocusEffect } from '@react-navigation/native'
 import { router } from 'expo-router'
-=======
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { useFocusEffect } from '@react-navigation/native'
->>>>>>> 5576744b6ff96019d50b556115b6ccc8b28233e5
 import { useCallback, useState } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
@@ -17,12 +12,6 @@ import { ThemedText } from '@/components/ThemedText'
 import { ThemedView } from '@/components/ThemedView'
 import { IReport } from '@/interfaces/IReport'
 
-<<<<<<< HEAD
-=======
-import { router } from 'expo-router'
-
-
->>>>>>> 5576744b6ff96019d50b556115b6ccc8b28233e5
 export default function ReportsList() {
   const [reports, setReports] = useState<IReport[]>([])
 
@@ -58,11 +47,7 @@ export default function ReportsList() {
   )
 
   const openForm = () => {
-<<<<<<< HEAD
     router.push('/screens/reportForm' as any)
-=======
-    router.push('/screens/reportForm')
->>>>>>> 5576744b6ff96019d50b556115b6ccc8b28233e5
   }
 
   return (
@@ -70,7 +55,6 @@ export default function ReportsList() {
       <View style={styles.filterContainer}>
         <ThemedText style={styles.filterLabel}>Filtrar:</ThemedText>
         <DropDownPicker
-<<<<<<< HEAD
           open={open}
           value={filter}
           items={items}
@@ -80,17 +64,6 @@ export default function ReportsList() {
           style={styles.dropdown}
           dropDownContainerStyle={styles.dropdownContainer}
           zIndex={1000}
-=======
-            open={open}
-            value={filter}
-            items={items}
-            setOpen={setOpen}
-            setValue={setFilter}
-            setItems={setItems}
-            style={styles.dropdown}
-            dropDownContainerStyle={styles.dropdownContainer}
-            zIndex={1000}
->>>>>>> 5576744b6ff96019d50b556115b6ccc8b28233e5
         />
       </View>
 
@@ -98,7 +71,6 @@ export default function ReportsList() {
         <ParallaxScrollView headerBackgroundColor={{ light: '#ECECEC', dark: '#202020' }}>
           <View style={styles.container}>
             {reports.length > 0 ? reports.map(report => (
-<<<<<<< HEAD
               <Report
                 key={report.id}
                 message={report.message}
@@ -109,18 +81,6 @@ export default function ReportsList() {
               />
             )) : <ThemedText style={styles.noReport}>Nenhum registro!</ThemedText>
             }
-=======
-                <Report
-                  key={report.id}
-                  message={report.message}
-                  category={report.category}
-                  location={report.location}
-                  date={report.createdAt}
-                  image={report.image}
-                />
-            )) : <ThemedText style={styles.noReport}>Nenhum registro!</ThemedText>
-        }
->>>>>>> 5576744b6ff96019d50b556115b6ccc8b28233e5
           </View>
         </ParallaxScrollView>
       </View>
@@ -139,14 +99,9 @@ const styles = StyleSheet.create({
   filterContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-<<<<<<< HEAD
     justifyContent: 'center',
     marginTop: 40,
     paddingHorizontal: 20,
-=======
-    marginTop: 40,
-    paddingHorizontal: 150,
->>>>>>> 5576744b6ff96019d50b556115b6ccc8b28233e5
     zIndex: 1000,
     gap: 8,
     paddingVertical: 8,
@@ -155,11 +110,7 @@ const styles = StyleSheet.create({
   filterLabel: {
     fontSize: 16,
     fontWeight: '600'
-<<<<<<< HEAD
   },
-=======
-  },  
->>>>>>> 5576744b6ff96019d50b556115b6ccc8b28233e5
   dropdown: {
     width: 150,
     height: 42,
@@ -169,11 +120,7 @@ const styles = StyleSheet.create({
   dropdownContainer: {
     width: 150,
     zIndex: 1000
-<<<<<<< HEAD
   },
-=======
-  },  
->>>>>>> 5576744b6ff96019d50b556115b6ccc8b28233e5
   addButton: {
     position: 'absolute',
     bottom: 20,
