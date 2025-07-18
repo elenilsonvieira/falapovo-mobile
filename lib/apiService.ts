@@ -1,5 +1,5 @@
 
-const BASE_URL = 'http:10.19.243.42:3000';
+const BASE_URL = 'http://10.213.57.42:3000';
 
 interface RequestOptions extends RequestInit {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
