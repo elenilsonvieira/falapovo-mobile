@@ -1,12 +1,12 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import * as ImagePicker from 'expo-image-picker'
 import { useState } from 'react'
-import { Alert, Image, KeyboardAvoidingView, PermissionsAndroid, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker'
 
 import { ThemedView } from '@/components/ThemedView'
 import { IReport } from '@/interfaces/IReport'
 
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { router } from 'expo-router'
 
 export default function ReportForm() {
@@ -38,13 +38,13 @@ export default function ReportForm() {
       if (!message || !selectedCategory) return
 
       const newReport: IReport = {
-        
         id: Math.floor(Math.random() * 100000),
         message,
         category: selectedCategory,
         location,
         createdAt: getCurrentDate('/'),
-        image: photoUri ?? ''
+        image: photoUri ?? '',
+        status: 'Em análise'
       }
 
       const updateReports = [...reports, newReport]
@@ -54,7 +54,7 @@ export default function ReportForm() {
       setLocation('')
       setSelectedCategory('')
       setPhotoUri(null)
-     
+
       router.replace('/(tabs)/reportsList' as any)
     } catch (error) {
       console.error('Erro ao salvar:', error)
@@ -66,79 +66,27 @@ export default function ReportForm() {
     setLocation('')
     setSelectedCategory('')
     setPhotoUri(null)
-    
+
     router.replace('/(tabs)/reportsList' as any)
   }
 
-  const requestCameraPermission = async (): Promise<boolean> => {
-    if (Platform.OS !== 'android') {
-        return true;
-    }
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        {
-          title: 'Permissão para usar a câmera',
-          message: 'Este app precisa acessar sua câmera para tirar fotos.',
-          buttonNeutral: 'Perguntar depois',
-          buttonNegative: 'Cancelar',
-          buttonPositive: 'OK',
-        },
-      )
-      return granted === PermissionsAndroid.RESULTS.GRANTED
-    } catch (err) {
-      console.warn(err)
-      return false
-    }
-  }
+  const selectImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
 
-  const selectImage = () => {
-    Alert.alert('Selecionar Imagem', 'Escolha uma opção', [
-      {
-        text: 'Câmera',
-        onPress: async () => {
-          const hasPermission = await requestCameraPermission()
-          if (!hasPermission) {
-            Alert.alert('Permissão negada', 'Não é possível abrir a câmera sem permissão.')
-            return
-          }
-        
-          launchCamera(
-            {
-              mediaType: 'photo',
-              cameraType: 'back',
-              saveToPhotos: true,
-            },
-            (response) => {
-              if (response.didCancel) return
-              if (response.errorCode) {
-                console.error('Erro ao abrir câmera:', response.errorMessage)
-                Alert.alert('Erro', 'Não foi possível abrir a câmera.')
-                return
-              }
-        
-              if (response.assets && response.assets.length > 0) {
-                setPhotoUri(response.assets[0].uri ?? null)
-              }
-            }
-          )
-        }        
-      },
-      {
-        text: 'Galeria',
-        onPress: () => {
-          launchImageLibrary({ mediaType: 'photo' }, (response) => {
-            if (!response.didCancel && !response.errorCode && response.assets?.[0]) {
-              setPhotoUri(response.assets[0].uri ?? null)
-            }
-          })
-        }
-      },
-      {
-        text: 'Cancelar',
-        style: 'cancel'
+    if (permissionResult.granted) {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      })
+
+      if (!result.canceled && result.assets?.[0]) {
+        setPhotoUri(result.assets[0].uri ?? null)
       }
-    ])
+    } else {
+      alert('Permissão para acessar a galeria é necessária!')
+    }
   }
 
   return (

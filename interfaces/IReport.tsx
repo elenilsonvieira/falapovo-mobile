@@ -4,5 +4,6 @@ export interface IReport {
     category: string,
     location: string,
     createdAt: string,
-    image: string
+    image: string,
+    status: string
 }
