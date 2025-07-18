@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ActivityIndicator, Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import { z } from 'zod';
+
 import { apiRequest } from '../../lib/apiService';
 import { useAuth } from '../../lib/auth';
 
@@ -15,11 +16,9 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>;
 
-
 export default function LoginScreen() {
   const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  
   const router = useRouter();
 
   const {
@@ -36,11 +35,14 @@ export default function LoginScreen() {
     register('password');
   }, [register]);
 
+
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
     try {
       const response = await apiRequest<any>('POST', '/api/auth/login', data);
+      
       login(response.user); 
+      
       Alert.alert('Sucesso', 'Login realizado com sucesso!');
       
     } catch (error: any) {
@@ -52,7 +54,6 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      {}
       <Text style={styles.title}>FalaPovo - Login</Text>
       <Text style={styles.subtitle}>Sistema de Notificação de Problemas na Cidade</Text>
 
@@ -90,15 +91,13 @@ export default function LoginScreen() {
         <Text style={styles.registerText}>Não tem conta? </Text>
         <Button
           title="Cadastre-se"
-          
-          onPress={() => router.push('/register')} 
+          onPress={() => router.push('/register' as any)} 
           color="#007bff"
         />
       </View>
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {

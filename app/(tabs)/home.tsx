@@ -1,4 +1,3 @@
-
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Button, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -13,10 +12,20 @@ export default function HomeScreen() {
       <Text style={styles.title}>Bem-vindo, {user?.name || 'Usuário'}!</Text>
       <Text style={styles.email}>{user?.email}</Text>
       
-      {}
       <Pressable style={styles.button} onPress={() => router.push('/reportsList' as any)}>
         <Text style={styles.buttonText}>Ver Relatos de Problemas</Text>
       </Pressable>
+
+      {}
+      {}
+      {user?.isAdmin && (
+        <Pressable 
+          style={[styles.button, styles.adminButton]} 
+          onPress={() => router.push('/admin/dashboard' as any)}
+        >
+          <Text style={styles.buttonText}>Painel Administrativo</Text>
+        </Pressable>
+      )}
 
       <View style={styles.spacer} />
 
@@ -49,6 +58,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     borderRadius: 8,
     elevation: 3,
+    marginTop: 10, 
+    width: '80%',
+    alignItems: 'center',
+  },
+ 
+  adminButton: {
+    backgroundColor: '#6f42c1', 
   },
   buttonText: {
     color: 'white',

@@ -6,6 +6,7 @@ interface User {
   id: string;
   email: string;
   name?: string;
+  isAdmin?: boolean; 
 }
 
 interface AuthContextType {
@@ -13,14 +14,14 @@ interface AuthContextType {
   login: (user: User) => void;
   logout: () => void;
   isAuthenticated: boolean;
-  isLoadingAuth: boolean; 
+  isLoadingAuth: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true); 
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
   useEffect(() => {
     const loadStoredUser = async () => {
@@ -31,9 +32,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         console.error("Failed to load user from AsyncStorage", error);
-        await AsyncStorage.removeItem("sgi_user"); 
+        await AsyncStorage.removeItem("sgi_user");
       } finally {
-        setIsLoadingAuth(false); 
+        setIsLoadingAuth(false);
       }
     };
 

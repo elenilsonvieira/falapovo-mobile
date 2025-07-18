@@ -1,5 +1,4 @@
-
-const BASE_URL = 'http://10.213.57.42:3000';
+const BASE_URL = 'http://10.213.57.42:3000'; 
 
 interface RequestOptions extends RequestInit {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -9,6 +8,7 @@ interface RequestOptions extends RequestInit {
 
 export async function apiRequest<T>(method: RequestOptions['method'], path: string, data?: any): Promise<T> {
   const url = `${BASE_URL}${path}`;
+  
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -31,8 +31,7 @@ export async function apiRequest<T>(method: RequestOptions['method'], path: stri
       try {
         const errorData = await response.json();
         errorMessage = errorData.message || errorData.error || JSON.stringify(errorData);
-      } catch (jsonError) {
-    
+      } catch (_jsonError) {
         const errorText = await response.text();
         if (errorText) {
           errorMessage = errorText;
@@ -41,13 +40,12 @@ export async function apiRequest<T>(method: RequestOptions['method'], path: stri
       throw new Error(errorMessage);
     }
 
-    
     const text = await response.text();
     return text ? JSON.parse(text) : ({} as T);
 
   } catch (error: any) {
-    console.error(`[API Request Error] (${method} ${path}):`, error);
-    if (error.message.includes('Network request failed')) {
+    console.error(`[API Request Error] (${method} ${path}):`, error.message);
+    if (error.message.includes('Network request failed') || error.message.includes('Failed to fetch')) {
       throw new Error('Não foi possível conectar ao servidor. Verifique sua conexão e a URL da API.');
     }
     throw error;
