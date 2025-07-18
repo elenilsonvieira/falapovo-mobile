@@ -79,6 +79,7 @@ export default function ReportsList() {
                   location={report.location}
                   date={report.createdAt}
                   image={report.image}
+                  status={report.status}
                 />
             )) : <ThemedText style={styles.noReport}>Nenhum registro!</ThemedText>
         }

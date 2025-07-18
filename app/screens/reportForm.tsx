@@ -44,7 +44,8 @@ export default function ReportForm() {
         category: selectedCategory,
         location,
         createdAt: getCurrentDate('/'),
-        image: photoUri ?? ''
+        image: photoUri ?? '',
+        status: 'Em análise'
       }
 
       const updateReports = [...reports, newReport]

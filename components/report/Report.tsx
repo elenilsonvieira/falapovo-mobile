@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, Text, View, Image } from 'react-native'
+import { Image, StyleSheet, Text, View } from 'react-native'
 import { ThemedView } from '../ThemedView'
 
 export type ReportProps = {
@@ -8,9 +8,23 @@ export type ReportProps = {
   category: string
   date: string
   image: string
+  status: string
 }
 
-export default function Report({ message, category, location, date, image }: ReportProps) {
+type StatusColor = {
+  [key: string]: string;
+};
+
+export default function Report({ message, category, location, date, image, status }: ReportProps) {
+  const colors: StatusColor[] = [
+    {'Em análise': '#ff0000'}, 
+    {'Em andamento': '#0037f1'}, 
+    {'Concluído': '#0ff100'}
+  ];
+  const color = colors.find(item => item[status])?.[status];
+  console.log(color);
+  
+  
   return (
     <ThemedView style={styles.container}>
       <View style={styles.card}>
@@ -25,6 +39,7 @@ export default function Report({ message, category, location, date, image }: Rep
 
           <Text style={styles.info}>📍 {location}</Text>
           <Text style={styles.info}>📅 {date}</Text>
+          <Text style={styles.status}>Status: <Text style={{color: `${color}`, fontWeight: 'bold'}}>{status}</Text></Text>
         </View>
       </View>
     </ThemedView>
@@ -73,5 +88,9 @@ const styles = StyleSheet.create({
         color: '#666',
         marginBottom: 4,
     },
+    status: {
+      fontSize: 14,
+      color: '#333'
+  }
 })
   
