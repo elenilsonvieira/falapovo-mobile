@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ActivityIndicator, Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import { z } from 'zod';
+
 import { apiRequest } from '../../lib/apiService';
 import { useAuth } from '../../lib/auth';
 
@@ -33,10 +34,16 @@ export default function LoginScreen() {
     register('password');
   }, [register]);
 
+
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
     try {
       const response = await apiRequest<any>('POST', '/api/auth/login', data);
+      
+      login(response.user); 
+      
+      Alert.alert('Sucesso', 'Login realizado com sucesso!');
+      
       login(response.user);
       Alert.alert('Sucesso', 'Login realizado com sucesso!', [
         {
@@ -90,6 +97,7 @@ export default function LoginScreen() {
         <Text style={styles.registerText}>Não tem conta? </Text>
         <Button
           title="Cadastre-se"
+          onPress={() => router.push('/register' as any)} 
           onPress={() => router.push('/register' as any)}
           color="#007bff"
         />
