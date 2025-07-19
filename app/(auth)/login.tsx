@@ -1,13 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ActivityIndicator, Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import { z } from 'zod';
-
 import { apiRequest } from '../../lib/apiService';
 import { useAuth } from '../../lib/auth';
-
-import { useRouter } from 'expo-router';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -35,16 +33,17 @@ export default function LoginScreen() {
     register('password');
   }, [register]);
 
-
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
     try {
       const response = await apiRequest<any>('POST', '/api/auth/login', data);
-      
-      login(response.user); 
-      
-      Alert.alert('Sucesso', 'Login realizado com sucesso!');
-      
+      login(response.user);
+      Alert.alert('Sucesso', 'Login realizado com sucesso!', [
+        {
+          text: 'OK',
+          onPress: () => router.replace('/(tabs)/reportsList'), // Navega após o alerta
+        },
+      ]);
     } catch (error: any) {
       Alert.alert('Erro de Login', error.message || 'Ocorreu um erro desconhecido.');
     } finally {
@@ -91,7 +90,7 @@ export default function LoginScreen() {
         <Text style={styles.registerText}>Não tem conta? </Text>
         <Button
           title="Cadastre-se"
-          onPress={() => router.push('/register' as any)} 
+          onPress={() => router.push('/register' as any)}
           color="#007bff"
         />
       </View>
