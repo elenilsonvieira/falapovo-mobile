@@ -138,7 +138,7 @@ app.get('/api/reports/:reportId/comments', (req: Request, res: Response) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  const networkIp = '192.168.1.104';
+  const networkIp = '10.213.57.42';
   console.log(`🎉 Servidor da API rodando em http://localhost:${PORT}`);
   console.log(`🚀 Acessível na rede em http://${networkIp}:${PORT}`);
 });
