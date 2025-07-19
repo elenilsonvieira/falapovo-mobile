@@ -1,5 +1,3 @@
-// server/index.ts
-
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import express, { Request, Response } from 'express';
