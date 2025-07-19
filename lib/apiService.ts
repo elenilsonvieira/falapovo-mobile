@@ -1,7 +1,7 @@
-const BASE_URL = 'http://10.213.57.42:3000'; 
+const BASE_URL = 'http://10.213.57.42:3000';
 
 interface RequestOptions extends RequestInit {
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
   headers?: Record<string, string>;
   body?: any;
 }
@@ -31,7 +31,7 @@ export async function apiRequest<T>(method: RequestOptions['method'], path: stri
       try {
         const errorData = await response.json();
         errorMessage = errorData.message || errorData.error || JSON.stringify(errorData);
-      } catch (_jsonError) {
+      } catch (_jsonError) { 
         const errorText = await response.text();
         if (errorText) {
           errorMessage = errorText;

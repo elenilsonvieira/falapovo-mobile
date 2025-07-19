@@ -44,13 +44,8 @@ export default function LoginScreen() {
       
       Alert.alert('Sucesso', 'Login realizado com sucesso!');
       
-      login(response.user);
-      Alert.alert('Sucesso', 'Login realizado com sucesso!', [
-        {
-          text: 'OK',
-          onPress: () => router.replace('/(tabs)/reportsList'), // Navega após o alerta
-        },
-      ]);
+
+
     } catch (error: any) {
       Alert.alert('Erro de Login', error.message || 'Ocorreu um erro desconhecido.');
     } finally {
@@ -98,7 +93,6 @@ export default function LoginScreen() {
         <Button
           title="Cadastre-se"
           onPress={() => router.push('/register' as any)} 
-          onPress={() => router.push('/register' as any)}
           color="#007bff"
         />
       </View>

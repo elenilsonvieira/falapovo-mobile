@@ -46,6 +46,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 8,
+    
   },
   email: {
     fontSize: 18,

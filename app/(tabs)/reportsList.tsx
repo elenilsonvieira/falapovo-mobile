@@ -1,103 +1,151 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect, useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useFocusEffect } from '@react-navigation/native'
+import { useCallback, useState } from 'react'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import DropDownPicker from 'react-native-dropdown-picker'
 
-import Report from '@/components/report/Report';
-import { IReport } from '@/interfaces/IReport';
-import { apiRequest } from '@/lib/apiService';
-import { useAuth } from '@/lib/auth';
-import React, { useCallback, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import ParallaxScrollView from '@/components/ParallaxScrollView'
+import Report from '@/components/report/Report'
+import { ThemedText } from '@/components/ThemedText'
+import { ThemedView } from '@/components/ThemedView'
+import { IReport } from '@/interfaces/IReport'
+
+import { router } from 'expo-router'
+
 
 export default function ReportsList() {
-  const router = useRouter();
-  const { user } = useAuth();
-  const [reports, setReports] = useState<IReport[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [reports, setReports] = useState<IReport[]>([])
+
+  const [open, setOpen] = useState(false)
+  const [filter, setFilter] = useState('Tudo')
+  const [items, setItems] = useState([
+    { label: 'Tudo', value: 'Tudo' },
+    { label: 'Buraco', value: 'Buraco' },
+    { label: 'Obra', value: 'Obra' },
+  ])
 
   useFocusEffect(
     useCallback(() => {
-      const fetchReports = async () => {
+      async function getData() {
         try {
-          setIsLoading(true);
-          const localData = await AsyncStorage.getItem('@FalaPovoApp:reports');
-          let reportsData: IReport[] = localData ? JSON.parse(localData) : [];
+          const data = await AsyncStorage.getItem('@FalaPovoApp:reports')
+          const reportsData = data != null ? JSON.parse(data) : []
 
-          // Garante que cada relato tenha um array de comments
-          reportsData = reportsData.map(report => ({
-            ...report,
-            comments: report.comments || [],
-          }));
-
-          // Tenta buscar da API se usuário for admin
-          if (user?.isAdmin) {
-            try {
-              const apiReports = await apiRequest<IReport[]>('GET', '/api/admin/reports');
-              reportsData = apiReports.map(report => ({
-                ...report,
-                comments: report.comments || [],
-              }));
-              await AsyncStorage.setItem('@FalaPovoApp:reports', JSON.stringify(reportsData));
-            } catch (apiError) {
-              console.error('Erro ao buscar da API:', apiError);
-            }
+          if (filter && filter !== 'Tudo') {
+            const filteredReports = reportsData.filter(
+              (report: { category: string }) => report.category === filter
+            )
+            setReports(filteredReports.reverse())
+          } else {
+            setReports(reportsData.reverse())
           }
-
-          setReports(reportsData);
-        } catch (error: any) {
-          console.error('Erro ao carregar denúncias:', error);
-        } finally {
-          setIsLoading(false);
+        } catch (e) {
+          console.error('Error fetching data: ', e)
         }
-      };
+      }
+      getData()
+    }, [filter])
+  )
 
-      fetchReports();
-    }, [user])
-  );
-
-  if (isLoading) {
-    return <ActivityIndicator size="large" style={styles.loader} />;
+  const openForm = () => {
+    router.push('/screens/reportForm')
   }
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={reports}
-        renderItem={({ item }) => <Report report={item} />}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.list}
-        ListEmptyComponent={<Text style={styles.emptyText}>Nenhuma denúncia encontrada.</Text>}
-      />
-      {/* Use router.push temporariamente até confirmar a rota correta */}
-      <TouchableOpacity style={styles.fab} onPress={() => router.push('/reportForm' as any)}>
-        <Text style={styles.fabText}>+</Text>
+    <ThemedView style={{ flex: 1 }}>
+      <View style={styles.filterContainer}>
+        <ThemedText style={styles.filterLabel}>Filtrar:</ThemedText>
+        <DropDownPicker
+            open={open}
+            value={filter}
+            items={items}
+            setOpen={setOpen}
+            setValue={setFilter}
+            setItems={setItems}
+            style={styles.dropdown}
+            dropDownContainerStyle={styles.dropdownContainer}
+            zIndex={1000}
+        />
+      </View>
+
+      <View style={{ flex: 1, zIndex: 0 }}>
+        <ParallaxScrollView headerBackgroundColor={{ light: '#ECECEC', dark: '#202020' }}>
+          <View style={styles.container}>
+            {reports.length > 0 ? reports.map(report => (
+                <Report
+                  key={report.id}
+                  message={report.message}
+                  category={report.category}
+                  location={report.location}
+                  date={report.createdAt}
+                  image={report.image}
+                  status={report.status}
+                />
+            )) : <ThemedText style={styles.noReport}>Nenhum registro!</ThemedText>
+        }
+          </View>
+        </ParallaxScrollView>
+      </View>
+
+      <TouchableOpacity style={styles.addButton} onPress={() => openForm()}>
+        <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
-      {/* Quando confirmar a rota, substitua por:
-      <Link href="/reportForm" asChild>
-        <TouchableOpacity style={styles.fab}>
-          <Text style={styles.fabText}>+</Text>
-        </TouchableOpacity>
-      </Link>
-      Substitua '/reportForm' pelo caminho correto, por exemplo, '/(main)/reportForm' se estiver em app/(main)/reportForm.tsx */}
-    </View>
-  );
+    </ThemedView>
+  )
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f0f2f5' },
-  loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  list: { padding: 16 },
-  emptyText: { textAlign: 'center', marginTop: 50, fontSize: 16, color: 'gray' },
-  fab: {
+  container: {
+    paddingBottom: 80,
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 40,
+    paddingHorizontal: 150,
+    zIndex: 1000,
+    gap: 8,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  filterLabel: {
+    fontSize: 16,
+    fontWeight: '600'
+  },  
+  dropdown: {
+    width: 150,
+    height: 42,
+    borderColor: '#ccc',
+    borderRadius: 8,
+  },
+  dropdownContainer: {
+    width: 150,
+    zIndex: 1000
+  },  
+  addButton: {
     position: 'absolute',
     bottom: 20,
     right: 20,
-    backgroundColor: '#007bff',
+    backgroundColor: '#fffd8f',
     width: 60,
     height: 60,
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+    zIndex: 100,
   },
-  fabText: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
-});
+  addButtonText: {
+    fontSize: 30,
+    color: '#333',
+  },
+  noReport: {
+    fontStyle: 'italic',
+    fontSize: 25,
+    textAlign: 'center'
+  }
+})
