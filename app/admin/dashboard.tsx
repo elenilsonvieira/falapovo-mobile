@@ -65,7 +65,7 @@ export default function AdminDashboard() {
           <Text style={styles.actionText}>Em Andamento</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton} onPress={() => handleUpdateStatus(item.id, 'Concluido')}>
-          <Text style={styles.actionText}>Resolver</Text>
+          <Text style={styles.actionText}>Concluido</Text>
         </TouchableOpacity>
       </View>
     </View>
