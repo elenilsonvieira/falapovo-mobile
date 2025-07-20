@@ -70,7 +70,7 @@ app.patch('/api/reports/:id/status', (req: Request, res: Response) => {
 
 
 app.listen(PORT, '0.0.0.0', () => {
-  const networkIp = '10.19.243.42'; 
+  const networkIp = '10.116.236.42'; 
   console.log(`🎉 Servidor da API rodando em http://localhost:${PORT}`);
   console.log(`🚀 Acessível na rede em http://${networkIp}:${PORT}`);
 });
