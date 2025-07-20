@@ -8,7 +8,7 @@ interface AdminReport {
   message: string;
   category: string;
   location: string;
-  status: 'Recebido' | 'Em Andamento' | 'Concluido';
+  status: 'Em análise' | 'Em andamento' | 'Concluído';
 }
 
 export default function AdminDashboard() {
@@ -61,11 +61,11 @@ export default function AdminDashboard() {
         </Text>
       </View>
       <View style={styles.actionsContainer}>
-        <TouchableOpacity style={styles.actionButton} onPress={() => handleUpdateStatus(item.id, 'Em Andamento')}>
-          <Text style={styles.actionText}>Em Andamento</Text>
+        <TouchableOpacity style={styles.actionButton} onPress={() => handleUpdateStatus(item.id, 'Em análise')}>
+          <Text style={styles.actionText}>Em análise</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton} onPress={() => handleUpdateStatus(item.id, 'Concluido')}>
-          <Text style={styles.actionText}>Concluido</Text>
+        <TouchableOpacity style={styles.actionButton} onPress={() => handleUpdateStatus(item.id, 'Concluído')}>
+          <Text style={styles.actionText}>Concluído</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -89,8 +89,8 @@ export default function AdminDashboard() {
 }
 
 const getStatusColor = (status: AdminReport['status']) => {
-  if (status === 'Concluido') return '#28a745';
-  if (status === 'Em Andamento') return '#ffc107';
+  if (status === 'Concluído') return '#28a745';
+  if (status === 'Em andamento') return '#ffc107';
   return '#6c757d';
 };
 
