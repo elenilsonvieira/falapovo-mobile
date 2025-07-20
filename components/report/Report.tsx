@@ -11,19 +11,18 @@ export type ReportProps = {
   status: string
 }
 
-type StatusColor = {
+export type StatusColorProps = {
   [key: string]: string;
-};
+}
+
+export const statusColors: StatusColorProps[] = [
+  {'Em análise': '#ff0000'}, 
+  {'Em andamento': '#0037f1'}, 
+  {'Concluído': '#0ff100'}
+]
 
 export default function Report({ message, category, location, date, image, status }: ReportProps) {
-  const colors: StatusColor[] = [
-    {'Em análise': '#ff0000'}, 
-    {'Em andamento': '#0037f1'}, 
-    {'Concluído': '#0ff100'}
-  ];
-  const color = colors.find(item => item[status])?.[status];
-  console.log(color);
-  
+  const color = statusColors.find(item => item[status])?.[status]
   
   return (
     <ThemedView style={styles.container}>
