@@ -5,6 +5,7 @@ import DropDownPicker from 'react-native-dropdown-picker'
 
 import { ThemedView } from '@/components/ThemedView'
 import { IReport } from '@/interfaces/IReport'
+import { IComment } from '@/interfaces/IComment'
 
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { router } from 'expo-router'
@@ -27,14 +28,15 @@ export default function ReportForm() {
     let month = newDate.getMonth() + 1
     let year = newDate.getFullYear()
 
-    return `${date < 10 ? `0${date}` : `${date}`}${separator}${month < 10 ? `0${month}` : `${month}`}${separator}${year}`
+    return `${date < 10 ? 0${date} : ${date}}${separator}${month < 10 ? 0${month} : ${month}}${separator}${year}`
   }
 
   const onAdd = async () => {
     try {
       const data = await AsyncStorage.getItem('@FalaPovoApp:reports')
       const reports: IReport[] = data ? JSON.parse(data) : []
-
+      const commentsField: IComment[] = []
+      
       if (!message || !selectedCategory) return
 
       const newReport: IReport = {
@@ -44,7 +46,8 @@ export default function ReportForm() {
         location,
         createdAt: getCurrentDate('/'),
         image: photoUri ?? '',
-        status: 'Em análise'
+        status: 'Em análise',
+        comments: commentsField
       }
 
       const updateReports = [...reports, newReport]
@@ -232,6 +235,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     fontWeight: '600',
-    fontSize: 16,
-  },
+    fontSize: 16,
+  },
 })

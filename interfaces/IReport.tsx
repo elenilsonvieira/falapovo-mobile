@@ -1,3 +1,5 @@
+import { IComment } from "./IComment";
+
 export interface IReport {
     id: number,
     message: string,
@@ -6,4 +8,5 @@ export interface IReport {
     createdAt: string,
     image: string,
     status: string,
+    comments: IComment[]
 }

@@ -50,6 +50,9 @@ export default function ReportsList() {
   const openForm = () => {
     router.push('/screens/reportForm')
   }
+  const openReport = (id: string) => {
+    router.push({ pathname: '/screens/showReport', params: { id } })
+  }
 
   return (
     <ThemedView style={{ flex: 1 }}>
@@ -72,15 +75,17 @@ export default function ReportsList() {
         <ParallaxScrollView headerBackgroundColor={{ light: '#ECECEC', dark: '#202020' }}>
           <View style={styles.container}>
             {reports.length > 0 ? reports.map(report => (
+              <TouchableOpacity key={report.id} onPress={() => openReport(report.id.toString())}>
                 <Report
                   key={report.id}
                   message={report.message}
                   category={report.category}
                   location={report.location}
                   date={report.createdAt}
-                  image={report.image}
                   status={report.status}
+                  image={report.image}
                 />
+              </TouchableOpacity>
             )) : <ThemedText style={styles.noReport}>Nenhum registro!</ThemedText>
         }
           </View>
@@ -146,6 +151,6 @@ const styles = StyleSheet.create({
   noReport: {
     fontStyle: 'italic',
     fontSize: 25,
-    textAlign: 'center'
-  }
+    textAlign: 'center'
+  }
 })
