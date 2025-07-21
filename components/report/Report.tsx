@@ -8,9 +8,21 @@ export type ReportProps = {
   category: string
   date: string
   image: string
+  status: string
 }
 
-export default function Report({ message, category, location, date, image }: ReportProps) {
+export type StatusColorProps = {
+  [key: string]: string;
+}
+
+export const statusColors: StatusColorProps[] = [
+  {'Em análise': '#ff0000'}, 
+  {'Em andamento': '#0037f1'}, 
+  {'Concluído': '#0ff100'}
+]
+
+export default function Report({ message, category, location, date, image, status }: ReportProps) {
+  const color = statusColors.find(item => item[status])?.[status]
   
   return (
     <ThemedView style={styles.container}>
@@ -26,6 +38,9 @@ export default function Report({ message, category, location, date, image }: Rep
 
           <Text style={styles.info}>📍 {location}</Text>
           <Text style={styles.info}>📅 {date}</Text>
+          <Text style={styles.status}>
+            Status: <Text style={{color: `${color}`, fontWeight: 'bold'}}>{status}</Text>
+          </Text>
         </View>
       </View>
     </ThemedView>
@@ -72,6 +87,10 @@ const styles = StyleSheet.create({
     info: {
         fontSize: 13,
         color: '#666',
-        marginBottom: 4,
-    },
+        marginBottom: 4,
+    },
+    status: {
+      fontSize: 14,
+      color: '#333'
+    }
 })

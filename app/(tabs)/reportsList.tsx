@@ -151,6 +151,6 @@ const styles = StyleSheet.create({
   noReport: {
     fontStyle: 'italic',
     fontSize: 25,
-    textAlign: 'center'
-  }
+    textAlign: 'center'
+  }
 })

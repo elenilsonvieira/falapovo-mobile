@@ -8,5 +8,5 @@ export interface IReport {
     createdAt: string,
     image: string,
     status: string,
-    comments: IComment[]
+    comments: IComment[]
 }

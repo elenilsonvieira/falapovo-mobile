@@ -25,6 +25,7 @@ export default function ReportForm() {
   const [category, setCategory] = useState('')
   const [image, setImage] = useState('')
   const [createdAt, setCreatedAt] = useState('')
+  const [status, setStatus] = useState('')
 
   const color = statusColors.find(item => item[status])?.[status]
 
@@ -46,6 +47,7 @@ export default function ReportForm() {
         setComments(selectedReport.comments || [])
         setImage(selectedReport.image)
         setCreatedAt(selectedReport.createdAt)
+        setStatus(selectedReport.status)
       }
     } catch (error) {
       console.error('Erro ao carregar relato:', error)
@@ -267,7 +269,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 200,
     resizeMode: 'cover',
-    borderRadius: 12,
-  },
-  
+    borderRadius: 12,
+  },
+  
 })
