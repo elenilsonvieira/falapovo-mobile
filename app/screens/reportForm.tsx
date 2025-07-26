@@ -1,6 +1,6 @@
 import * as ImagePicker from 'expo-image-picker'
 import { useState } from 'react'
-import { Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
 
 import { ThemedView } from '@/components/ThemedView'
@@ -75,20 +75,51 @@ export default function ReportForm() {
 
   const selectImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
-
-    if (permissionResult.granted) {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
+    const cameraPermissionResult = await ImagePicker.requestCameraPermissionsAsync()
+  
+    if (permissionResult.granted && cameraPermissionResult.granted) {
+      const action = await new Promise((resolve) => {
+        Alert.alert(
+          'Escolha uma opção',
+          'Você deseja acessar a galeria ou usar a câmera?',
+          [
+            {
+              text: 'Galeria',
+              onPress: () => resolve('gallery'),
+            },
+            {
+              text: 'Câmera',
+              onPress: () => resolve('camera'),
+            },
+            { text: 'Cancelar', onPress: () => resolve(null), style: 'cancel' },
+          ]
+        )
       })
-
-      if (!result.canceled && result.assets?.[0]) {
-        setPhotoUri(result.assets[0].uri ?? null)
+  
+      if (action === 'gallery') {
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 1,
+        })
+  
+        if (!result.canceled && result.assets?.[0]) {
+          setPhotoUri(result.assets[0].uri ?? null)
+        }
+      } else if (action === 'camera') {
+        const result = await ImagePicker.launchCameraAsync({
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 1,
+        })
+  
+        if (!result.canceled && result.assets?.[0]) {
+          setPhotoUri(result.assets[0].uri ?? null)
+        }
       }
     } else {
-      alert('Permissão para acessar a galeria é necessária!')
+      alert('Permissão para acessar a galeria e/ou a câmera é necessária!')
     }
   }
 
