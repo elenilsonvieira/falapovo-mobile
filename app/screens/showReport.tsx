@@ -53,7 +53,7 @@ export default function ShowReportScreen() {
 
       const updatedReports = reports.map(r =>
         r.id === report.id
-          ? { ...r, comments: [...(r.comments || []), newComment] }
+          ? { ...r, comments: [newComment, ...(r.comments || [])] }
           : r
       );
 
