@@ -74,52 +74,66 @@ export default function ReportForm() {
   }
 
   const selectImage = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
-    const cameraPermissionResult = await ImagePicker.requestCameraPermissionsAsync()
-  
-    if (permissionResult.granted && cameraPermissionResult.granted) {
-      const action = await new Promise((resolve) => {
-        Alert.alert(
-          'Escolha uma opção',
-          'Você deseja acessar a galeria ou usar a câmera?',
-          [
-            {
-              text: 'Galeria',
-              onPress: () => resolve('gallery'),
-            },
-            {
-              text: 'Câmera',
-              onPress: () => resolve('camera'),
-            },
-            { text: 'Cancelar', onPress: () => resolve(null), style: 'cancel' },
-          ]
-        )
+    if(Platform.OS === 'web'){
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
       })
-  
-      if (action === 'gallery') {
-        const result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 1,
-        })
-  
-        if (!result.canceled && result.assets?.[0]) {
-          setPhotoUri(result.assets[0].uri ?? null)
-        }
-      } else if (action === 'camera') {
-        const result = await ImagePicker.launchCameraAsync({
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 1,
-        })
-  
-        if (!result.canceled && result.assets?.[0]) {
-          setPhotoUri(result.assets[0].uri ?? null)
-        }
+
+      if (!result.canceled && result.assets?.[0]) {
+        setPhotoUri(result.assets[0].uri ?? null)
       }
-    } else {
-      alert('Permissão para acessar a galeria e/ou a câmera é necessária!')
+    }
+    else {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
+      const cameraPermissionResult = await ImagePicker.requestCameraPermissionsAsync()
+    
+      if (permissionResult.granted && cameraPermissionResult.granted) {
+        const action = await new Promise((resolve) => {
+          Alert.alert(
+            'Escolha uma opção',
+            'Você deseja acessar a galeria ou usar a câmera?',
+            [
+              {
+                text: 'Galeria',
+                onPress: () => resolve('gallery'),
+              },
+              {
+                text: 'Câmera',
+                onPress: () => resolve('camera'),
+              },
+              { text: 'Cancelar', onPress: () => resolve(null), style: 'cancel' },
+            ]
+          )
+        })
+    
+        if (action === 'gallery') {
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+          })
+    
+          if (!result.canceled && result.assets?.[0]) {
+            setPhotoUri(result.assets[0].uri ?? null)
+          }
+        } else if (action === 'camera') {
+          const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+          })
+    
+          if (!result.canceled && result.assets?.[0]) {
+            setPhotoUri(result.assets[0].uri ?? null)
+          }
+        }
+      } else {
+        alert('Permissão para acessar a galeria e/ou a câmera é necessária!')
+      }
     }
   }
 
