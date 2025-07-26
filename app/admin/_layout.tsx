@@ -3,10 +3,11 @@ import React from 'react';
 
 export default function AdminLayout() {
   return (
-    <Stack>
+    <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name="dashboard"
         options={{
+          headerShown: true,
           headerTitle: 'Painel Administrativo',
         }}
       />

@@ -1,58 +1,56 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { useFocusEffect } from '@react-navigation/native'
-import { useCallback, useState } from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import DropDownPicker from 'react-native-dropdown-picker'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import { router } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
 
-import ParallaxScrollView from '@/components/ParallaxScrollView'
-import Report from '@/components/report/Report'
-import { ThemedText } from '@/components/ThemedText'
-import { ThemedView } from '@/components/ThemedView'
-import { IReport } from '@/interfaces/IReport'
-
-import { router } from 'expo-router'
-
+import ParallaxScrollView from '@/components/ParallaxScrollView';
+import Report from '@/components/report/Report';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { IReport } from '@/interfaces/IReport';
 
 export default function ReportsList() {
-  const [reports, setReports] = useState<IReport[]>([])
+  const [reports, setReports] = useState<IReport[]>([]);
 
-  const [open, setOpen] = useState(false)
-  const [filter, setFilter] = useState('Tudo')
+  const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState('Tudo');
   const [items, setItems] = useState([
     { label: 'Tudo', value: 'Tudo' },
     { label: 'Buraco', value: 'Buraco' },
     { label: 'Obra', value: 'Obra' },
-  ])
+  ]);
 
   useFocusEffect(
     useCallback(() => {
       async function getData() {
         try {
-          const data = await AsyncStorage.getItem('@FalaPovoApp:reports')
-          const reportsData = data != null ? JSON.parse(data) : []
+          const data = await AsyncStorage.getItem('@FalaPovoApp:reports');
+          const reportsData = data != null ? JSON.parse(data) : [];
 
           if (filter && filter !== 'Tudo') {
             const filteredReports = reportsData.filter(
               (report: { category: string }) => report.category === filter
-            )
-            setReports(filteredReports.reverse())
+            );
+            setReports(filteredReports.reverse());
           } else {
-            setReports(reportsData.reverse())
+            setReports(reportsData.reverse());
           }
         } catch (e) {
-          console.error('Error fetching data: ', e)
+          console.error('Error fetching data: ', e);
         }
       }
-      getData()
+      getData();
     }, [filter])
-  )
+  );
 
   const openForm = () => {
-    router.push('/screens/reportForm')
-  }
+    router.push('/screens/reportForm' as any);
+  };
   const openReport = (id: string) => {
-    router.push({ pathname: '/screens/showReport', params: { id } })
-  }
+    router.push({ pathname: '/screens/showReport', params: { id } });
+  };
 
   return (
     <ThemedView style={{ flex: 1 }}>
@@ -77,7 +75,7 @@ export default function ReportsList() {
             {reports.length > 0 ? reports.map(report => (
               <TouchableOpacity key={report.id} onPress={() => openReport(report.id.toString())}>
                 <Report
-                  key={report.id}
+                  id={report.id}
                   message={report.message}
                   category={report.category}
                   location={report.location}
@@ -96,7 +94,7 @@ export default function ReportsList() {
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
     </ThemedView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -106,8 +104,9 @@ const styles = StyleSheet.create({
   filterContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center', 
     marginTop: 40,
-    paddingHorizontal: 150,
+    paddingHorizontal: 40, 
     zIndex: 1000,
     gap: 8,
     paddingVertical: 8,
@@ -153,4 +152,4 @@ const styles = StyleSheet.create({
     fontSize: 25,
     textAlign: 'center'
   }
-})
+});

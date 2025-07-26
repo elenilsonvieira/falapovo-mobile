@@ -16,9 +16,9 @@ function RootLayoutNav() {
     const inAuthGroup = segments[0] === '(auth)';
 
     if (isAuthenticated && inAuthGroup) {
-      router.replace('/home');
+      router.replace('/home' as any);
     } else if (!isAuthenticated && !inAuthGroup) {
-      router.replace('/login');
+      router.replace('/login' as any);
     }
   }, [isAuthenticated, isLoadingAuth, segments, router]); 
 
@@ -26,7 +26,12 @@ function RootLayoutNav() {
     <Stack>
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      
       {}
+      {
+        }
+      <Stack.Screen name="admin" options={{ headerShown: false }} />
+      
       <Stack.Screen name="+not-found" />
     </Stack>
   );
