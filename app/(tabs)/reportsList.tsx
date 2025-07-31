@@ -1,18 +1,17 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import Report from '@/components/report/Report';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IReport } from '@/interfaces/IReport';
+import RemoveReport from "@/components/RemoveReport";
+import Report from "@/components/report/Report";
+import { IReport } from "@/interfaces/IReport";
 
 export default function ReportsList() {
   const [reports, setReports] = useState<IReport[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Categoria
   const [openCategory, setOpenCategory] = useState(false);
@@ -33,17 +32,11 @@ export default function ReportsList() {
     { label: 'Concluído', value: 'Concluído' },
   ]);
 
-  useEffect(() => {
-    console.log('Filtro categoria:', filterCategory);
-  }, [filterCategory]);
-  useEffect(() => {
-    console.log('Filtro status:', filterStatus);
-  }, [filterStatus]);
-
   useFocusEffect(
     useCallback(() => {
       async function getData() {
         try {
+          setLoading(true);
           const data = await AsyncStorage.getItem('@FalaPovoApp:reports');
           const reportsData: IReport[] = data ? JSON.parse(data) : [];
 
@@ -55,27 +48,38 @@ export default function ReportsList() {
             ? filteredReports.filter(r => r.status === filterStatus)
             : filteredReports;
 
-          setReports(filteredReports.reverse());
+          setReports(filteredReports);
         } catch (e) {
           console.error('Erro ao buscar dados:', e);
+        } finally {
+          setLoading(false);
         }
       }
       getData();
     }, [filterCategory, filterStatus])
   );
 
-  const openForm = () => {
-    router.push('/screens/reportForm' as any);
+  const openForm = (id?: string) => {
+    if (id) {
+      router.push({ pathname: '/screens/reportForm', params: { id } });
+    } else {
+      router.push('/screens/reportForm')
+    }
   };
   const openReport = (id: string) => {
-    router.push({ pathname: '/screens/showReport', params: { id } });
+    router.push({ pathname: "/screens/showReport", params: { id } });
   };
 
+  const onDelete = async (id:number) => {
+    const newReportList = await RemoveReport(id, reports, '@FalaPovoApp:reports')
+    setReports(newReportList)
+  }
+  
   return (
-    <ThemedView style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <View style={styles.filterContainer}>
         <View style={{ zIndex: 2000 }}>
-          <ThemedText style={styles.filterLabel}>Categoria:</ThemedText>
+          <Text style={styles.filterLabel}>Categoria:</Text>
           <DropDownPicker
             open={openCategory}
             value={filterCategory}
@@ -89,7 +93,7 @@ export default function ReportsList() {
         </View>
 
         <View style={{ zIndex: 1000, marginLeft: 20 }}>
-          <ThemedText style={styles.filterLabel}>Status:</ThemedText>
+          <Text style={styles.filterLabel}>Status:</Text>
           <DropDownPicker
             open={openStatus}
             value={filterStatus}
@@ -104,11 +108,16 @@ export default function ReportsList() {
       </View>
 
       <View style={{ flex: 1, zIndex: 0 }}>
-        <ParallaxScrollView headerBackgroundColor={{ light: '#ECECEC', dark: '#202020' }}>
+        <ScrollView>
           <View style={styles.container}>
-            {reports.length > 0 ? (
-              reports.map(report => (
-                <TouchableOpacity key={report.id} onPress={() => openReport(report.id.toString())}>
+            {loading ? (
+              <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />
+            ) : reports.length > 0 ? (
+              reports.map((report) => (
+                <TouchableOpacity
+                  key={report.id}
+                  onPress={() => openReport(report.id.toString())}
+                >
                   <Report
                     id={report.id}
                     message={report.message}
@@ -117,20 +126,22 @@ export default function ReportsList() {
                     date={report.createdAt}
                     status={report.status}
                     image={report.image}
+                    onDelete={onDelete}
+                    openForm={openForm}
                   />
                 </TouchableOpacity>
               ))
             ) : (
-              <ThemedText style={styles.noReport}>Nenhum registro!</ThemedText>
+              <Text style={styles.noReport}>Nenhum registro!</Text>
             )}
           </View>
-        </ParallaxScrollView>
+        </ScrollView>
       </View>
 
-      <TouchableOpacity style={styles.addButton} onPress={openForm}>
+      <TouchableOpacity style={styles.addButton} onPress={() => {openForm()}}>
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
-    </ThemedView>
+    </View>
   );
 }
 
@@ -145,33 +156,34 @@ const styles = StyleSheet.create({
     marginTop: 40,
     paddingHorizontal: 20,
     gap: 8,
-    paddingVertical: 8,
+    paddingVertical: 15,
     borderRadius: 8,
   },
   filterLabel: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   dropdown: {
     width: 150,
     height: 42,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
   },
   dropdownContainer: {
     width: 150,
+    zIndex: 1000,
   },
   addButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 20,
     right: 20,
-    backgroundColor: '#fffd8f',
+    backgroundColor: "#fffd8f",
     width: 60,
     height: 60,
     borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -180,11 +192,17 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontSize: 30,
-    color: '#333',
+    color: "#333",
   },
   noReport: {
-    fontStyle: 'italic',
+    fontStyle: "italic",
     fontSize: 25,
-    textAlign: 'center',
+    textAlign: "center",
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
   },
 });
