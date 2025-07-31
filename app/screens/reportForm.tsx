@@ -1,149 +1,221 @@
-import * as ImagePicker from 'expo-image-picker'
-import { useState } from 'react'
-import { Alert, Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import DropDownPicker from 'react-native-dropdown-picker'
+import * as ImagePicker from "expo-image-picker";
+import { useEffect, useState } from "react";
+import {
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from "react-native";
+import DropDownPicker from "react-native-dropdown-picker";
 
-import { ThemedView } from '@/components/ThemedView'
-import { IComment } from '@/interfaces/IComment'
-import { IReport } from '@/interfaces/IReport'
+import { IComment } from "@/interfaces/IComment";
+import { IReport } from "@/interfaces/IReport";
 
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { router } from 'expo-router'
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router, useLocalSearchParams } from "expo-router";
+
+import EditReport from "@/components/EditReport";
+import * as Location from "expo-location";
 
 export default function ReportForm() {
-  const [message, setMessage] = useState('')
-  const [location, setLocation] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('')
-  const [photoUri, setPhotoUri] = useState<string | null>(null)
+  const { id } = useLocalSearchParams()
+  
+  const [message, setMessage] = useState("");
+  const [location, setLocation] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
 
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
   const [items, setItems] = useState([
-    { label: 'Buraco', value: 'Buraco' },
-    { label: 'Obra', value: 'Obra' },
-  ])
+    { label: "Buraco", value: "Buraco" },
+    { label: "Obra", value: "Obra" },
+  ]);
+  
+  useEffect(() => {
+    if (id) {
+        loadReportData(Number(id))
+    }
+  }, [id])
 
-  const getCurrentDate = (separator = '') => {
-    let newDate = new Date()
-    let date = newDate.getDate()
-    let month = newDate.getMonth() + 1
-    let year = newDate.getFullYear()
-
-    return `${date < 10 ? `0${date}` : `${date}`}${separator}${month < 10 ? `0${month}` : `${month}`}${separator}${year}`
-  }
-
-  const onAdd = async () => {
-    try {
+const loadReportData = async (id: number) => {
+  try {
       const data = await AsyncStorage.getItem('@FalaPovoApp:reports')
       const reports: IReport[] = data ? JSON.parse(data) : []
-      const commentsField: IComment[] = []
-
-      if (!message || !selectedCategory) return
-
-      const newReport: IReport = {
-        id: Math.floor(Math.random() * 100000),
-        message,
-        category: selectedCategory,
-        location,
-        createdAt: getCurrentDate('/'),
-        image: photoUri ?? '',
-        status: 'Em análise',
-        comments: commentsField
+      const selectedReport = reports.find(report => report.id === id)
+      if (selectedReport) {
+          setMessage(selectedReport.message)
+          setLocation(selectedReport.location)
+          setSelectedCategory(selectedReport.category)
+          setPhotoUri(selectedReport.image)
       }
-
-      const updateReports = [...reports, newReport]
-      await AsyncStorage.setItem('@FalaPovoApp:reports', JSON.stringify(updateReports))
-
-      setMessage('')
-      setLocation('')
-      setSelectedCategory('')
-      setPhotoUri(null)
-
-      router.replace('/(tabs)/reportsList' as any)
-    } catch (error) {
-      console.error('Erro ao salvar:', error)
+  } catch (error) {
     }
   }
 
-  const onCancel = () => {
-    setMessage('')
-    setLocation('')
-    setSelectedCategory('')
-    setPhotoUri(null)
+  const getCurrentDate = (separator = "") => {
+    let newDate = new Date();
+    let date = newDate.getDate();
+    let month = newDate.getMonth() + 1;
+    let year = newDate.getFullYear();
 
-    router.replace('/(tabs)/reportsList' as any)
-  }
+    return `${date < 10 ? `0${date}` : `${date}`}${separator}${
+      month < 10 ? `0${month}` : `${month}`
+    }${separator}${year}`;
+  };
+
+  const onAdd = async () => {
+    try {
+      const data = await AsyncStorage.getItem("@FalaPovoApp:reports");
+      const reports: IReport[] = data ? JSON.parse(data) : [];
+      const commentsField: IComment[] = [];
+
+      if (!message || !selectedCategory) return;
+
+      if (id) {
+        EditReport(
+          '@FalaPovoApp:reports', 
+          Number(id), 
+          reports, 
+          message, 
+          selectedCategory, 
+          photoUri, 
+          location
+        )
+      } else {
+        const newReport: IReport = {
+          id: Math.floor(Math.random() * 100000),
+          message,
+          category: selectedCategory,
+          location,
+          createdAt: getCurrentDate("/"),
+          image: photoUri ?? "",
+          status: "Em análise",
+          comments: commentsField,
+        };
+
+        const updateReports = [newReport, ...reports];
+        await AsyncStorage.setItem("@FalaPovoApp:reports", JSON.stringify(updateReports));
+      }
+
+      setMessage("");
+      setLocation("");
+      setSelectedCategory("");
+      setPhotoUri(null);
+
+      router.replace("/(tabs)/reportsList" as any);
+    } catch (error) {
+      console.error("Erro ao salvar:", error);
+    }
+  };
+
+  const onCancel = () => {
+    setMessage("");
+    setLocation("");
+    setSelectedCategory("");
+    setPhotoUri(null);
+
+    router.replace("/(tabs)/reportsList" as any);
+  };
 
   const selectImage = async () => {
-    if(Platform.OS === 'web'){
+    if (Platform.OS === "web") {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
-      })
+      });
 
       if (!result.canceled && result.assets?.[0]) {
-        setPhotoUri(result.assets[0].uri ?? null)
+        setPhotoUri(result.assets[0].uri ?? null);
       }
-    }
-    else {
-      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
-      const cameraPermissionResult = await ImagePicker.requestCameraPermissionsAsync()
-    
+    } else {
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const cameraPermissionResult =
+        await ImagePicker.requestCameraPermissionsAsync();
+
       if (permissionResult.granted && cameraPermissionResult.granted) {
         const action = await new Promise((resolve) => {
           Alert.alert(
-            'Escolha uma opção',
-            'Você deseja acessar a galeria ou usar a câmera?',
+            "Escolha uma opção",
+            "Você deseja acessar a galeria ou usar a câmera?",
             [
               {
-                text: 'Galeria',
-                onPress: () => resolve('gallery'),
+                text: "Galeria",
+                onPress: () => resolve("gallery"),
               },
               {
-                text: 'Câmera',
-                onPress: () => resolve('camera'),
+                text: "Câmera",
+                onPress: () => resolve("camera"),
               },
-              { text: 'Cancelar', onPress: () => resolve(null), style: 'cancel' },
+              {
+                text: "Cancelar",
+                onPress: () => resolve(null),
+                style: "cancel",
+              },
             ]
-          )
-        })
-    
-        if (action === 'gallery') {
+          );
+        });
+
+        if (action === "gallery") {
           const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             aspect: [4, 3],
             quality: 1,
-          })
-    
+          });
+
           if (!result.canceled && result.assets?.[0]) {
-            setPhotoUri(result.assets[0].uri ?? null)
+            setPhotoUri(result.assets[0].uri ?? null);
           }
-        } else if (action === 'camera') {
+        } else if (action === "camera") {
           const result = await ImagePicker.launchCameraAsync({
             allowsEditing: true,
             aspect: [4, 3],
             quality: 1,
-          })
-    
+          });
+
           if (!result.canceled && result.assets?.[0]) {
-            setPhotoUri(result.assets[0].uri ?? null)
+            setPhotoUri(result.assets[0].uri ?? null);
           }
         }
       } else {
-        alert('Permissão para acessar a galeria e/ou a câmera é necessária!')
+        alert("Permissão para acessar a galeria e/ou a câmera é necessária!");
       }
     }
-  }
+  };
+
+  const getLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      return;
+    }
+
+    let location = await Location.getCurrentPositionAsync({});
+    let readableData = await Location.reverseGeocodeAsync(location.coords);
+    let locationStructured = `${readableData[0].street}${
+      readableData[0].district ? `, ${readableData[0].district}` : ""
+    } - ${
+      readableData[0].city ? readableData[0].city : readableData[0].subregion
+    }`;
+
+    setLocation(locationStructured);
+  };
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: '#f0f2f5' }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={{ flex: 1, backgroundColor: "#f0f2f5" }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <ThemedView style={styles.wrapper}>
-        <View style={styles.card}>
+      <View style={styles.wrapper}>
+        <ScrollView style={styles.card}>
           <Text style={styles.title}>Criar Relato</Text>
 
           <TextInput
@@ -161,6 +233,10 @@ export default function ReportForm() {
             onChangeText={setLocation}
           />
 
+          <TouchableOpacity style={styles.buttonLocation} onPress={getLocation}>
+            <Text style={styles.buttonText}>Localização automática</Text>
+          </TouchableOpacity>
+
           <DropDownPicker
             open={open}
             value={selectedCategory}
@@ -172,6 +248,7 @@ export default function ReportForm() {
             style={styles.dropdown}
             dropDownContainerStyle={styles.dropdownBox}
             zIndex={1000}
+            listMode="SCROLLVIEW"
           />
 
           {photoUri && (
@@ -184,32 +261,32 @@ export default function ReportForm() {
 
           <View style={styles.buttonsContainer}>
             <TouchableOpacity style={styles.buttonSave} onPress={onAdd}>
-              <Text style={styles.buttonText}>Publicar</Text>
+              <Text style={styles.buttonText}>{id ? 'Salvar' : 'Publicar'}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.buttonCancel} onPress={onCancel}>
               <Text style={styles.buttonText}>Cancelar</Text>
             </TouchableOpacity>
           </View>
-        </View>
-      </ThemedView>
+        </ScrollView>
+      </View>
     </KeyboardAvoidingView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
     padding: 16,
     paddingTop: 40,
   },
   card: {
-    width: '100%',
+    width: "100%",
     maxWidth: 400,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 20,
     borderRadius: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 3 },
     shadowRadius: 8,
@@ -218,68 +295,74 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     marginBottom: 18,
-    textAlign: 'center',
-    fontWeight: '700',
-    color: '#333',
+    textAlign: "center",
+    fontWeight: "700",
+    color: "#333",
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: '#fafafa',
+    borderColor: "#ddd",
+    backgroundColor: "#fafafa",
     padding: 12,
     marginBottom: 14,
     borderRadius: 12,
     fontSize: 15,
   },
   dropdown: {
-    backgroundColor: '#fff',
-    borderColor: '#ccc',
+    backgroundColor: "#fff",
+    borderColor: "#ccc",
     height: 48,
     borderRadius: 12,
     paddingHorizontal: 12,
     marginBottom: 14,
   },
   dropdownBox: {
-    backgroundColor: '#fff',
-    borderColor: '#ccc',
+    backgroundColor: "#fff",
+    borderColor: "#ccc",
     borderRadius: 12,
     zIndex: 1000,
   },
   buttonPhoto: {
-    backgroundColor: '#4267B2',
+    backgroundColor: "#4267B2",
     paddingVertical: 12,
     borderRadius: 12,
     marginBottom: 16,
   },
   previewImage: {
-    width: '100%',
+    width: "100%",
     height: 220,
     borderRadius: 14,
     marginBottom: 12,
-    resizeMode: 'cover',
+    resizeMode: "cover",
   },
   buttonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     gap: 12,
     marginTop: 10,
   },
   buttonSave: {
-    backgroundColor: '#28a745',
+    backgroundColor: "#28a745",
     paddingVertical: 14,
     borderRadius: 12,
     flex: 1,
   },
   buttonCancel: {
-    backgroundColor: '#dc3545',
+    backgroundColor: "#dc3545",
     paddingVertical: 14,
     borderRadius: 12,
     flex: 1,
   },
   buttonText: {
-    color: '#fff',
-    textAlign: 'center',
-    fontWeight: '600',
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "600",
     fontSize: 16,
   },
-})
+  buttonLocation: {
+    backgroundColor: "#17a2b8",
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginBottom: 14,
+  },
+});
