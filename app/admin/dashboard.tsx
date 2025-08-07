@@ -82,7 +82,7 @@ export default function AdminDashboard() {
       <View style={styles.cardContent}>
         <Text style={styles.reportCategory}>{item.category}</Text>
         <Text style={styles.reportMessage}>{item.message}</Text>
-        <Text style={styles.reportLocation}>{item.location}</Text>
+        <Text style={styles.reportLocation}>{item.adressLocation}</Text>
         <View style={styles.statusContainer}>
           <Text
             style={[styles.statusText, { color: getStatusColor(item.status) }]}

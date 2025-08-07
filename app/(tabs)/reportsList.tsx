@@ -122,7 +122,7 @@ export default function ReportsList() {
                     id={report.id}
                     message={report.message}
                     category={report.category}
-                    location={report.location}
+                    adressLocation={report.adressLocation}
                     date={report.createdAt}
                     status={report.status}
                     image={report.image}

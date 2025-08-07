@@ -1,3 +1,4 @@
+import Location from "expo-location";
 import { IComment } from "./IComment";
 
 
@@ -7,9 +8,10 @@ export interface IReport {
     id: number;
     message: string;
     category: string;
-    location: string;
+    adressLocation: string;
     createdAt: string;
     image: string;
     status: ReportStatus; 
     comments: IComment[];
+    mapLocation: Location.LocationObject | null;
 }

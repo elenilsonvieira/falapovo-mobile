@@ -1,6 +1,7 @@
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Image,
   KeyboardAvoidingView,
@@ -22,14 +23,17 @@ import { router, useLocalSearchParams } from "expo-router";
 
 import EditReport from "@/components/EditReport";
 import * as Location from "expo-location";
+import MapView, { Marker } from 'react-native-maps';
 
 export default function ReportForm() {
   const { id } = useLocalSearchParams()
   
   const [message, setMessage] = useState("");
-  const [location, setLocation] = useState("");
+  const [adressLocation, setAdressLocation] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [loadingLocation, setLoadingLocation] = useState(true);
+  const [mapLocation, setMapLocation] = useState<Location.LocationObject | null>(null);
 
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState([
@@ -50,9 +54,10 @@ const loadReportData = async (id: number) => {
       const selectedReport = reports.find(report => report.id === id)
       if (selectedReport) {
           setMessage(selectedReport.message)
-          setLocation(selectedReport.location)
+          setAdressLocation(selectedReport.adressLocation)
           setSelectedCategory(selectedReport.category)
           setPhotoUri(selectedReport.image)
+          setMapLocation(selectedReport.mapLocation)
       }
   } catch (error) {
     }
@@ -85,18 +90,20 @@ const loadReportData = async (id: number) => {
           message, 
           selectedCategory, 
           photoUri, 
-          location
+          adressLocation,
+          mapLocation
         )
       } else {
         const newReport: IReport = {
           id: Math.floor(Math.random() * 100000),
           message,
           category: selectedCategory,
-          location,
+          adressLocation,
           createdAt: getCurrentDate("/"),
           image: photoUri ?? "",
           status: "Em análise",
           comments: commentsField,
+          mapLocation
         };
 
         const updateReports = [newReport, ...reports];
@@ -104,7 +111,7 @@ const loadReportData = async (id: number) => {
       }
 
       setMessage("");
-      setLocation("");
+      setAdressLocation("");
       setSelectedCategory("");
       setPhotoUri(null);
 
@@ -116,9 +123,10 @@ const loadReportData = async (id: number) => {
 
   const onCancel = () => {
     setMessage("");
-    setLocation("");
+    setAdressLocation("");
     setSelectedCategory("");
     setPhotoUri(null);
+    setMapLocation(null)
 
     router.replace("/(tabs)/reportsList" as any);
   };
@@ -136,10 +144,8 @@ const loadReportData = async (id: number) => {
         setPhotoUri(result.assets[0].uri ?? null);
       }
     } else {
-      const permissionResult =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      const cameraPermissionResult =
-        await ImagePicker.requestCameraPermissionsAsync();
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const cameraPermissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
       if (permissionResult.granted && cameraPermissionResult.granted) {
         const action = await new Promise((resolve) => {
@@ -192,22 +198,33 @@ const loadReportData = async (id: number) => {
     }
   };
 
-  const getLocation = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      return;
-    }
+  useEffect(() => {
+    const getLocation = async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
 
-    let location = await Location.getCurrentPositionAsync({});
-    let readableData = await Location.reverseGeocodeAsync(location.coords);
-    let locationStructured = `${readableData[0].street}${
-      readableData[0].district ? `, ${readableData[0].district}` : ""
-    } - ${
-      readableData[0].city ? readableData[0].city : readableData[0].subregion
-    }`;
-
-    setLocation(locationStructured);
-  };
+      if (status !== "granted" || mapLocation) {
+        setLoadingLocation(false);
+        return;
+      }
+  
+      try {
+        let actualLocation = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.High,});
+        setMapLocation(actualLocation)
+        let readableData = await Location.reverseGeocodeAsync(actualLocation.coords);
+        let locationStructured = `${readableData[0].street}${
+          readableData[0].district ? `, ${readableData[0].district}` : ""
+        } - ${
+          readableData[0].city ? readableData[0].city : readableData[0].subregion
+        }`;
+    
+        setAdressLocation(locationStructured);
+        setLoadingLocation(false);
+      } catch (error) {
+        setLoadingLocation(false);
+      }
+    };
+    getLocation();
+  }, [])
 
   return (
     <KeyboardAvoidingView
@@ -225,17 +242,6 @@ const loadReportData = async (id: number) => {
             onChangeText={setMessage}
             multiline
           />
-
-          <TextInput
-            placeholder="Informe o local..."
-            style={styles.input}
-            value={location}
-            onChangeText={setLocation}
-          />
-
-          <TouchableOpacity style={styles.buttonLocation} onPress={getLocation}>
-            <Text style={styles.buttonText}>Localização automática</Text>
-          </TouchableOpacity>
 
           <DropDownPicker
             open={open}
@@ -258,6 +264,21 @@ const loadReportData = async (id: number) => {
           <TouchableOpacity style={styles.buttonPhoto} onPress={selectImage}>
             <Text style={styles.buttonText}>📷 Adicionar Foto</Text>
           </TouchableOpacity>
+
+          <View style={styles.locationContainer}>
+            {loadingLocation ? (
+              <ActivityIndicator size="large" color="#0000ff"/>
+            ) : mapLocation ? (
+              <>
+                <MapView style={styles.map} initialRegion={{ latitude: mapLocation.coords.latitude, longitude: mapLocation.coords.longitude, latitudeDelta: 0.005, longitudeDelta: 0.005, }} showsUserLocation >
+                  <Marker coordinate={mapLocation.coords} title="Local do Problema" />
+                </MapView>
+                <Text style={styles.addressText}>{adressLocation}</Text>
+              </>
+            ) : (
+              <Text>Não foi possível obter a localização. Verifique suas permissões.</Text>
+            )}
+          </View>
 
           <View style={styles.buttonsContainer}>
             <TouchableOpacity style={styles.buttonSave} onPress={onAdd}>
@@ -340,6 +361,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 12,
     marginTop: 10,
+    marginBottom: 40,
   },
   buttonSave: {
     backgroundColor: "#28a745",
@@ -364,5 +386,26 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 12,
     marginBottom: 14,
+  },
+  locationContainer: {
+    height: 250,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    borderWidth: 1,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  map: { ...StyleSheet.absoluteFillObject, },
+  addressText: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    color: '#fff',
+    padding: 8,
+    textAlign: 'center',
+    fontSize: 12,
   },
 });

@@ -6,7 +6,7 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 export type ReportProps = {
   id: number;
   message: string;
-  location: string;
+  adressLocation: string;
   category: string;
   date: string;
   image: string;
@@ -25,7 +25,7 @@ export default function Report({
   id,
   message,
   category,
-  location,
+  adressLocation,
   date,
   image,
   status,
@@ -64,7 +64,7 @@ export default function Report({
           </View>
 
           <Text style={styles.message}>{message}</Text>
-          {location && <Text style={styles.info}>📍 {location}</Text>}
+          {adressLocation && <Text style={styles.info}>📍 {adressLocation}</Text>}
           <Text style={styles.info}>📅 {date}</Text>
         </View>
       </View>

@@ -1,5 +1,6 @@
 import { IReport } from "@/interfaces/IReport";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Location from "expo-location";
 
 export default async function EditReport(
     asyncKey: string, 
@@ -8,7 +9,8 @@ export default async function EditReport(
     message: string, 
     selectedCategory: string, 
     photoUri: string | null,
-    location: string 
+    adressLocation: string,
+    mapLocation: Location.LocationObject | null
     ) {
         
     const updatedReports = reports.map(report => 
@@ -16,12 +18,13 @@ export default async function EditReport(
         ? {
           id,
           message,
-          location,
+          adressLocation,
           category: selectedCategory,
           image: photoUri,
           status: report.status,
           createdAt: report.createdAt,
-          comments: report.comments
+          comments: report.comments,
+          mapLocation
         } 
         : report
     )
