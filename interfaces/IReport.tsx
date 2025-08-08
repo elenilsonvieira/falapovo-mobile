@@ -14,4 +14,8 @@ export interface IReport {
     status: ReportStatus; 
     comments: IComment[];
     mapLocation: Location.LocationObject | null;
+    authorEmail?: string; 
+    completedAt?: string;
+    
+    
 }

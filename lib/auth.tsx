@@ -7,12 +7,15 @@ interface User {
   email: string;
   name?: string;
   isAdmin?: boolean; 
+  photoUri?: string; 
 }
+
 
 interface AuthContextType {
   user: User | null;
   login: (user: User) => void;
   logout: () => void;
+  updateUser: (updatedData: Partial<User>) => void; 
   isAuthenticated: boolean;
   isLoadingAuth: boolean;
 }
@@ -59,10 +62,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  
+  const updateUser = async (updatedData: Partial<User>) => {
+    if (!user) return;
+    const newUser = { ...user, ...updatedData };
+    setUser(newUser);
+    await AsyncStorage.setItem("sgi_user", JSON.stringify(newUser));
+  };
+
   const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, isLoadingAuth }}>
+    
+    <AuthContext.Provider value={{ user, login, logout, updateUser, isAuthenticated, isLoadingAuth }}>
       {children}
     </AuthContext.Provider>
   );

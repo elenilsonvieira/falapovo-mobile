@@ -1,11 +1,11 @@
+import { useToast } from '@/contexts/ToastContext';
 import { zodResolver } from '@hookform/resolvers/zod';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { ActivityIndicator, Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import { z } from 'zod';
-
 
 const USERS_STORAGE_KEY = '@FalaPovoApp:users';
 
@@ -24,13 +24,9 @@ type RegisterForm = z.infer<typeof registerSchema>;
 export default function RegisterScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { showToast } = useToast(); 
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<RegisterForm>({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
   });
 
@@ -44,49 +40,19 @@ export default function RegisterScreen() {
   const onSubmit = async (data: RegisterForm) => {
     setIsLoading(true);
     try {
-
       const existingUsersData = await AsyncStorage.getItem(USERS_STORAGE_KEY);
       const existingUsers = existingUsersData ? JSON.parse(existingUsersData) : [];
-
-      
-      const isEmailInUse = existingUsers.some(
-        (user: any) => user.email.toLowerCase() === data.email.toLowerCase()
-      );
-
+      const isEmailInUse = existingUsers.some((user: any) => user.email.toLowerCase() === data.email.toLowerCase());
       if (isEmailInUse) {
         throw new Error('Email já está em uso');
       }
-      
-     
-      const adminExists = existingUsers.some((user: any) => user.email === 'admin@falapovo.com');
-      if (!adminExists) {
-        existingUsers.push({
-            id: 'admin-01',
-            name: 'Administrador',
-            email: 'admin@falapovo.com',
-            password: '123456',
-            isAdmin: true,
-        });
-      }
-
-      
-      const newUser = {
-        id: `user-${Date.now()}`,
-        name: data.name,
-        email: data.email,
-        password: data.password, 
-        isAdmin: false,
-      };
-
-      
+      const newUser = { id: `user-${Date.now()}`, name: data.name, email: data.email, password: data.password, isAdmin: false };
       const updatedUsers = [...existingUsers, newUser];
       await AsyncStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
-
-      Alert.alert('Sucesso', 'Cadastro realizado com sucesso! Agora você pode fazer login.');
+      showToast('Cadastro realizado com sucesso!', 'success'); 
       router.replace('/login' as any);
-
     } catch (error: any) {
-      Alert.alert('Erro no Cadastro', error.message || 'Ocorreu um erro desconhecido.');
+      showToast(error.message || 'Erro ao cadastrar usuário', 'error'); 
     } finally {
       setIsLoading(false);
     }

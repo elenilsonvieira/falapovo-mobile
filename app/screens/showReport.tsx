@@ -93,7 +93,7 @@ export default function ShowReportScreen() {
           <Text style={styles.cardValue}>{report.message}</Text>
 
           <Text style={styles.cardLabel}>Localização</Text>
-          <Text style={styles.cardValue}>{report.location}</Text>
+          <Text style={styles.cardValue}>{report.adressLocation}</Text>
 
           <Text style={styles.cardLabel}>Categoria</Text>
           <Text style={styles.cardBadge}>#{report.category.toUpperCase()}</Text>

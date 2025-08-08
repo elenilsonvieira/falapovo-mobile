@@ -3,12 +3,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { ActivityIndicator, Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import { z } from 'zod';
 
+import { useToast } from '@/contexts/ToastContext'; // Importamos o nosso hook de toast
 import { useAuth } from '../../lib/auth';
 
-// A chave onde guardamos a LISTA de todos os utilizadores
 const USERS_STORAGE_KEY = '@FalaPovoApp:users';
 
 const loginSchema = z.object({
@@ -20,15 +20,11 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
   const { login } = useAuth();
+  const { showToast } = useToast(); 
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<LoginForm>({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
   });
 
@@ -37,44 +33,24 @@ export default function LoginScreen() {
     register('password');
   }, [register]);
 
-
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
     try {
-      
       const existingUsersData = await AsyncStorage.getItem(USERS_STORAGE_KEY);
       const existingUsers = existingUsersData ? JSON.parse(existingUsersData) : [];
-
-      
       const adminExists = existingUsers.some((user: any) => user.email === 'admin@falapovo.com');
       if (!adminExists) {
-        existingUsers.push({
-            id: 'admin-01',
-            name: 'Administrador',
-            email: 'admin@falapovo.com',
-            password: '123456',
-            isAdmin: true,
-        });
+        existingUsers.push({ id: 'admin-01', name: 'Administrador', email: 'admin@falapovo.com', password: '123456', isAdmin: true });
         await AsyncStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(existingUsers));
       }
-
-      
-      const user = existingUsers.find(
-        (u: any) => u.email.toLowerCase() === data.email.toLowerCase()
-      );
-
-     
+      const user = existingUsers.find((u: any) => u.email.toLowerCase() === data.email.toLowerCase());
       if (!user || user.password !== data.password) {
         throw new Error('Email ou senha inválidos.');
       }
-
-    
       login(user); 
-      
-      Alert.alert('Sucesso', 'Login realizado com sucesso!');
-      
+      showToast('Login realizado com sucesso!', 'success'); 
     } catch (error: any) {
-      Alert.alert('Erro de Login', error.message || 'Ocorreu um erro desconhecido.');
+      showToast(error.message || 'Ocorreu um erro desconhecido.', 'error'); 
     } finally {
       setIsLoading(false);
     }
