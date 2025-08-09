@@ -13,7 +13,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       {}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[styles.profileIconContainer, { top: insets.top + 30 }]}
         onPress={() => router.push('/profile')}
         hitSlop={{ top: 30, bottom: 30, left: 30, right: 30 }}
@@ -27,27 +27,29 @@ export default function HomeScreen() {
 
       <Text style={styles.title}>Bem-vindo, {user?.name || 'Usuário'}!</Text>
       <Text style={styles.email}>{user?.email}</Text>
-      
+
       {}
       {!user?.isAdmin && (
         <Pressable style={styles.button} onPress={() => router.push('/reportsList' as any)}>
-          <Text style={styles.buttonText}>Ver Relatos de Problemas</Text>
+          <Text style={styles.buttonText} numberOfLines={1} ellipsizeMode="tail">
+            Ver Relatos de Problemas
+          </Text>
         </Pressable>
       )}
 
       {}
       {user?.isAdmin && (
-        <Pressable 
-          style={[styles.button, styles.adminButton]} 
+        <Pressable
+          style={[styles.button, styles.adminButton]}
           onPress={() => router.push('/admin/dashboard' as any)}
         >
-          <Text style={styles.buttonText}>Painel Administrativo</Text>
+          <Text style={styles.buttonText} numberOfLines={1} ellipsizeMode="tail">
+            Painel Administrativo
+          </Text>
         </Pressable>
       )}
 
       <View style={styles.spacer} />
-
-      
     </View>
   );
 }
@@ -66,7 +68,16 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 8, textAlign: 'center' },
   email: { fontSize: 18, color: '#666', marginBottom: 40 },
-  button: { backgroundColor: '#007bff', paddingVertical: 12, paddingHorizontal: 30, borderRadius: 8, elevation: 3, marginTop: 10, width: '80%', alignItems: 'center' },
+  button: {
+    backgroundColor: '#007bff',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    elevation: 3,
+    marginTop: 10,
+    minWidth: 280, 
+    alignItems: 'center',
+  },
   adminButton: { backgroundColor: '#6f42c1' },
   buttonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
   spacer: { height: 20 },

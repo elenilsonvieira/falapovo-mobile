@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { ActivityIndicator, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import { z } from 'zod';
 
-import { useToast } from '@/contexts/ToastContext'; // Importamos o nosso hook de toast
+import { useToast } from '@/contexts/ToastContext'; // Nosso hook de toast
 import { useAuth } from '../../lib/auth';
 
 const USERS_STORAGE_KEY = '@FalaPovoApp:users';
@@ -20,7 +20,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
   const { login } = useAuth();
-  const { showToast } = useToast(); 
+  const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -47,13 +47,28 @@ export default function LoginScreen() {
       if (!user || user.password !== data.password) {
         throw new Error('Email ou senha inválidos.');
       }
-      login(user); 
-      showToast('Login realizado com sucesso!', 'success'); 
+      login(user);
+      showToast('Login realizado com sucesso!', 'success');
     } catch (error: any) {
-      showToast(error.message || 'Ocorreu um erro desconhecido.', 'error'); 
+      showToast(error.message || 'Ocorreu um erro desconhecido.', 'error');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // NOVO: função para login anônimo
+  const onAnonymousLogin = () => {
+    const anonymousUser = {
+      id: `anonymous-session-${Date.now()}`,
+      name: 'Usuário Anônimo',
+      email: null,
+      isAdmin: false,
+      isAnonymous: true, // sinaliza que é anônimo
+    };
+    login(anonymousUser);
+    showToast('Entrou como anônimo!', 'success');
+
+    router.replace('/(tabs)/home' as any); // redireciona pra home
   };
 
   return (
@@ -91,11 +106,19 @@ export default function LoginScreen() {
       />
       {isLoading && <ActivityIndicator style={styles.spinner} size="small" color="#0000ff" />}
 
+      <View style={{ marginVertical: 10 }}>
+        <Button
+          title="Continuar como Anônimo"
+          onPress={onAnonymousLogin}
+          color="#888"
+        />
+      </View>
+
       <View style={styles.registerContainer}>
         <Text style={styles.registerText}>Não tem conta? </Text>
         <Button
           title="Cadastre-se"
-          onPress={() => router.push('/register' as any)} 
+          onPress={() => router.push('/register' as any)}
           color="#007bff"
         />
       </View>
