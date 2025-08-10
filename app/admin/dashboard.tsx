@@ -1,5 +1,7 @@
 import AdminReportCard from "@/components/admin/AdminReportCard";
 import RegionalSummary from "@/components/admin/RegionalSummary";
+import RemoveReport from "@/components/RemoveReport";
+import { useToast } from "@/contexts/ToastContext";
 import { useAdminReports } from "@/hooks/useAdminReports";
 import React, { useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -7,9 +9,21 @@ import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View }
 type ViewMode = 'list' | 'summary' | 'archived';
 
 export default function AdminDashboard() {
-  
-  const { isLoading, activeReports, archivedReports, handleUpdateStatus, onDelete, handleArchive } = useAdminReports();
+  const { isLoading, activeReports, archivedReports, handleUpdateStatus, handleArchive, refetchData } = useAdminReports();
   const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const { showToast } = useToast();
+
+
+  const onDelete = async (id: number) => {
+    const newReportList = await RemoveReport(id, activeReports.slice().reverse(), '@FalaPovoApp:reports');
+    
+    if (newReportList.length < activeReports.length) {
+      showToast("Denúncia removida com sucesso!", 'success');
+      refetchData(); 
+    } else {
+      showToast("Não foi possível remover a denúncia.", 'error');
+    }
+  };
 
   if (isLoading) {
     return <ActivityIndicator size="large" style={styles.loader} />;
@@ -17,7 +31,6 @@ export default function AdminDashboard() {
 
   return (
     <View style={styles.container}>
-      {}
       <View style={styles.toggleContainer}>
         <TouchableOpacity style={[styles.toggleButton, viewMode === 'list' && styles.toggleButtonActive]} onPress={() => setViewMode('list')}>
           <Text style={[styles.toggleText, viewMode === 'list' && styles.toggleTextActive]}>Ativas ({activeReports.length})</Text>
@@ -30,7 +43,6 @@ export default function AdminDashboard() {
         </TouchableOpacity>
       </View>
 
-      {}
       {viewMode === 'list' && (
         <FlatList
           data={activeReports}

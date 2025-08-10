@@ -3,7 +3,6 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-
 const getStatusColor = (status: ReportStatus) => {
   if (status === "Concluído") return "#28a745";
   if (status === "Em andamento") return "#ffc107";
@@ -31,6 +30,7 @@ export default function AdminReportCard({ report, isArchived = false, onUpdateSt
         <Text style={styles.reportCategory}>{report.category}</Text>
         <Text style={styles.reportMessage}>{report.message}</Text>
         <Text style={styles.reportLocation}>{report.adressLocation}</Text>
+        <Text style={styles.reportDate}>Criado em: {report.createdAt}</Text>
         <View style={styles.statusContainer}>
           <Text style={[styles.statusText, { color: getStatusColor(report.status) }]}>Status: {report.status}</Text>
         </View>
@@ -75,6 +75,7 @@ const styles = StyleSheet.create({
   reportCategory: { fontSize: 16, fontWeight: "bold", color: "#007bff" },
   reportMessage: { fontSize: 14, color: "#333", marginVertical: 8 },
   reportLocation: { fontSize: 12, color: "#666", fontStyle: "italic" },
+  reportDate: { fontSize: 12, color: "#666", fontStyle: "italic", marginTop: 4 },
   statusContainer: { marginTop: 10, borderTopWidth: 1, borderTopColor: "#eee", paddingTop: 10 },
   statusText: { fontSize: 14, fontWeight: "bold" },
   actionsContainer: { flexDirection: "column", alignItems: "flex-start", marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: "#eee", gap: 12 },

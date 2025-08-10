@@ -1,3 +1,4 @@
+import RemoveReport from '@/components/RemoveReport';
 import { useToast } from '@/contexts/ToastContext';
 import { IReport, ReportStatus } from '@/interfaces/IReport';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -46,30 +47,30 @@ export function useAdminReports() {
     return { active: reports, archived: existingArchived };
   }, [showToast]);
 
+  const fetchData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const activeData = await AsyncStorage.getItem(REPORTS_KEY);
+      const archivedData = await AsyncStorage.getItem(ARCHIVED_KEY);
+      
+      let active = activeData ? JSON.parse(activeData) : [];
+      let archived = archivedData ? JSON.parse(archivedData) : [];
+
+      const result = await archiveOldReports(active, archived);
+
+      setActiveReports(result.active.reverse());
+      setArchivedReports(result.archived.reverse());
+    } catch (error: any) {
+      showToast(`Não foi possível carregar as denúncias: ${error.message}`, 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [showToast, archiveOldReports]);
+
   useFocusEffect(
     useCallback(() => {
-      const fetchData = async () => {
-        try {
-          setIsLoading(true);
-          const activeData = await AsyncStorage.getItem(REPORTS_KEY);
-          const archivedData = await AsyncStorage.getItem(ARCHIVED_KEY);
-          
-          let active = activeData ? JSON.parse(activeData) : [];
-          let archived = archivedData ? JSON.parse(archivedData) : [];
-
-          
-          const result = await archiveOldReports(active, archived);
-
-          setActiveReports(result.active.reverse());
-          setArchivedReports(result.archived.reverse());
-        } catch (error: any) {
-          showToast(`Não foi possível carregar as denúncias: ${error.message}`, 'error');
-        } finally {
-          setIsLoading(false);
-        }
-      };
       fetchData();
-    }, [showToast, archiveOldReports]) 
+    }, [fetchData]) 
   );
 
   const handleUpdateStatus = async (id: number, status: ReportStatus) => {
@@ -78,7 +79,6 @@ export function useAdminReports() {
       let currentReports: IReport[] = data ? JSON.parse(data) : [];
       const updatedReports = currentReports.map(report => {
         if (report.id === id) {
-          
           const completedAt = status === 'Concluído' ? new Date().toISOString() : report.completedAt;
           return { ...report, status, completedAt };
         }
@@ -93,15 +93,13 @@ export function useAdminReports() {
   };
 
   const onDelete = async (id: number) => {
-    try {
-      const data = await AsyncStorage.getItem(REPORTS_KEY);
-      const currentReports: IReport[] = data ? JSON.parse(data) : [];
-      const newReportList = currentReports.filter(report => report.id !== id);
-      await AsyncStorage.setItem(REPORTS_KEY, JSON.stringify(newReportList));
-      setActiveReports(newReportList.reverse());
+    const newReportList = await RemoveReport(id, activeReports.slice().reverse(), REPORTS_KEY);
+    
+    if (newReportList.length < activeReports.length) {
       showToast("Denúncia removida com sucesso!", 'success');
-    } catch (error: any) {
-      showToast(`Não foi possível remover a denúncia: ${error.message}`, 'error');
+      setActiveReports(newReportList.reverse());
+    } else {
+      showToast("Não foi possível remover a denúncia.", 'error');
     }
   };
 
@@ -111,7 +109,6 @@ export function useAdminReports() {
       const archivedData = await AsyncStorage.getItem(ARCHIVED_KEY);
       let active: IReport[] = activeData ? JSON.parse(activeData) : [];
       let archived: IReport[] = archivedData ? JSON.parse(archivedData) : [];
-
       
       const newActive = active.filter((r: IReport) => r.id !== reportToArchive.id);
       const newArchived = [reportToArchive, ...archived];
@@ -134,5 +131,6 @@ export function useAdminReports() {
     handleUpdateStatus,
     onDelete,
     handleArchive,
+    refetchData: fetchData,
   };
 }

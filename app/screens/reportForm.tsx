@@ -20,36 +20,11 @@ import { IReport } from "@/interfaces/IReport";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 
+import EditReport from "@/components/EditReport";
 import { useToast } from "@/contexts/ToastContext";
 import { useAuth } from "@/lib/auth";
 import * as Location from "expo-location";
 import MapView, { Marker } from 'react-native-maps';
-
-
-async function EditReport(
-    id: number, 
-    reports: IReport[], 
-    message: string, 
-    selectedCategory: string, 
-    photoUri: string | null,
-    adressLocation: string,
-    mapLocation: Location.LocationObject | null
-) {
-    const updatedReports = reports.map(report => 
-        report.id === id
-        ? {
-          ...report, 
-          message,
-          adressLocation,
-          category: selectedCategory,
-          image: photoUri ?? report.image, 
-          mapLocation
-        } 
-        : report
-    );
-    await AsyncStorage.setItem('@FalaPovoApp:reports', JSON.stringify(updatedReports));
-    return updatedReports;
-}
 
 export default function ReportForm() {
   const { id } = useLocalSearchParams();
@@ -83,7 +58,7 @@ export default function ReportForm() {
             setMapLocation(selectedReport.mapLocation);
         }
     } catch (error: any) {
-      showToast(`Erro ao carregar os dados da denúncia: ${error.message}`, 'error');
+      showToast(`Erro ao carregar os dados: ${error.message}`, 'error');
     } finally {
       setLoadingLocation(false);
     }
@@ -92,7 +67,7 @@ export default function ReportForm() {
   const getLocation = useCallback(async () => {
     setLoadingLocation(true);
     let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
+    if (status !== 'granted') {
       showToast('A permissão de localização foi negada.', 'error');
       setLoadingLocation(false);
       return;
@@ -119,9 +94,9 @@ export default function ReportForm() {
     } else {
       getLocation();
     }
-  }, [id, loadReportData, getLocation]); 
+  }, [id, loadReportData, getLocation]);
 
-  const onSave = async () => {
+  const onAdd = async () => {
     if (!message || !selectedCategory) {
       showToast("A descrição e a categoria são obrigatórias.", 'error');
       return;
@@ -132,13 +107,22 @@ export default function ReportForm() {
       const reports: IReport[] = data ? JSON.parse(data) : [];
       
       if (isEditing && id) {
-        await EditReport(Number(id), reports, message, selectedCategory ?? '', photoUri, adressLocation, mapLocation);
+        await EditReport(
+          '@FalaPovoApp:reports', 
+          Number(id), 
+          reports, 
+          message, 
+          selectedCategory ?? '', 
+          photoUri, 
+          adressLocation,
+          mapLocation
+        );
         showToast("Denúncia atualizada com sucesso!", 'success');
       } else {
         const newReport: IReport = {
           id: Date.now(),
           message,
-          category: selectedCategory,
+          category: selectedCategory ?? '',
           adressLocation,
           createdAt: new Date().toLocaleDateString('pt-BR'),
           image: photoUri ?? "",
@@ -146,7 +130,6 @@ export default function ReportForm() {
           comments: [],
           mapLocation,
           authorEmail: user?.email
-          
         };
         const updateReports = [newReport, ...reports];
         await AsyncStorage.setItem("@FalaPovoApp:reports", JSON.stringify(updateReports));
@@ -259,7 +242,7 @@ export default function ReportForm() {
           </View>
 
           <View style={styles.buttonsContainer}>
-            <TouchableOpacity style={styles.buttonSave} onPress={onSave}>
+            <TouchableOpacity style={styles.buttonSave} onPress={onAdd}>
               <Text style={styles.buttonText}>{isEditing ? 'Salvar Alterações' : 'Publicar'}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.buttonCancel} onPress={onCancel}>
