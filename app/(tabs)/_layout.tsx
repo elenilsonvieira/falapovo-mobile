@@ -43,10 +43,15 @@ export default function TabLayout() {
         }}
       />
       
+      <Tabs.Screen
+        name="suportScreen"
+        options={{
+          title: 'Suporte',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="chevron.right" color={color} />,
+          href: user?.isAdmin ? null : '/suportScreen',
+        }}
+      />
+      
     </Tabs>
   );
 }
-
-
-
-//chevron.right,chevron-forward
