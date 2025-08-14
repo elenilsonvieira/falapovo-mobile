@@ -1,7 +1,9 @@
 import { IReport, ReportStatus } from "@/interfaces/IReport";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
+import ConfirmModal from "../ui/ConfirmModal";
 
 const getStatusColor = (status: ReportStatus) => {
   if (status === "Concluído") return "#28a745";
@@ -13,18 +15,28 @@ interface AdminReportCardProps {
   report: IReport;
   isArchived?: boolean;
   onUpdateStatus?: (id: number, status: ReportStatus) => void;
-  onDelete?: (id: number) => void;
-  onArchive?: (report: IReport) => void;
+  onDelete: (id: number) => any;
+  onArchive: (report: IReport) => any;
 }
 
 export default function AdminReportCard({ report, isArchived = false, onUpdateStatus, onDelete, onArchive }: AdminReportCardProps) {
   const router = useRouter();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [onConfirmAction, setOnConfirmAction] = useState<() => any>(() => () => {});
+
   const viewReportDetails = (id: number) => {
     router.push({ pathname: "/screens/showReport", params: { id: id.toString() } });
   };
 
+  const openModal = (message: string, action: () => any) => {
+    setModalMessage(message);
+    setOnConfirmAction(() => action);
+    setModalVisible(true);
+  };
+
   return (
-     <View style={styles.reportCard}>
+    <View style={styles.reportCard}>
       {report.image && <Image source={{ uri: report.image }} style={styles.reportImage} />}
       <View style={styles.cardContent}>
         <Text style={styles.reportCategory}>{report.category}</Text>
@@ -41,7 +53,7 @@ export default function AdminReportCard({ report, isArchived = false, onUpdateSt
               <TouchableOpacity style={styles.commentsButton} onPress={() => viewReportDetails(report.id)}>
                 <Text style={styles.commentsButtonText}>Ver/Responder ({report.comments?.length || 0})</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.deleteButton} onPress={() => onDelete?.(report.id)}>
+              <TouchableOpacity style={styles.deleteButton} onPress={() => openModal("Deseja excluir esta denúncia?", () => onDelete(report.id))}>
                 <Text style={styles.deleteButtonText}>Excluir</Text>
               </TouchableOpacity>
             </View>
@@ -57,13 +69,23 @@ export default function AdminReportCard({ report, isArchived = false, onUpdateSt
               </TouchableOpacity>
             </ScrollView>
             {report.status === 'Concluído' && onArchive && (
-              <TouchableOpacity style={styles.archiveButton} onPress={() => onArchive(report)}>
+              <TouchableOpacity style={styles.archiveButton} onPress={() => openModal("Deseja arquivar esta denúncia?", () => onArchive(report))}>
                 <Text style={styles.archiveButtonText}>Arquivar</Text>
               </TouchableOpacity>
             )}
           </View>
         )}
       </View>
+
+      <ConfirmModal
+        visible={modalVisible}
+        message={modalMessage}
+        onConfirm={() => {
+          onConfirmAction();
+          setModalVisible(false);
+        }}
+        onCancel={() => setModalVisible(false)}
+      />
     </View>
   );
 }
