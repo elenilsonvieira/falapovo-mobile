@@ -1,5 +1,5 @@
-import RemoveReport from '@/components/RemoveReport';
 import { useToast } from '@/contexts/ToastContext';
+import RemoveReport from '@/hooks/RemoveReport';
 import { IReport, ReportStatus } from '@/interfaces/IReport';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';

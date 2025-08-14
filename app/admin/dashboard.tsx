@@ -1,7 +1,7 @@
 import AdminReportCard from "@/components/admin/AdminReportCard";
 import RegionalSummary from "@/components/admin/RegionalSummary";
-import RemoveReport from "@/components/RemoveReport";
 import { useToast } from "@/contexts/ToastContext";
+import RemoveReport from "@/hooks/RemoveReport";
 import { useAdminReports } from "@/hooks/useAdminReports";
 import React, { useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
