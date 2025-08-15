@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.falapovo.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,6 +20,12 @@
       "edgeToEdgeEnabled": true,
       "package": "com.falapovo.app",
       "windowSoftInputMode": "adjustResize"
+    },
+    "package": "com.falapovo.app",
+    "config": {
+      "googleMaps": {
+        "apiKey": "***REMOVED***"
+      }
     },
     "web": {
       "bundler": "metro",
