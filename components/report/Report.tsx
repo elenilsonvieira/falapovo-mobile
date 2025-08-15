@@ -1,7 +1,9 @@
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { ReportStatus } from "@/interfaces/IReport";
-import React from "react";
+import React, { useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
+import ConfirmModal from "../ui/ConfirmModal";
 
 export type ReportProps = {
   id: number;
@@ -33,6 +35,7 @@ export default function Report({
   openForm
 }: ReportProps) {
   const color = statusColors[status] || "#6c757d";
+  const [modalVisible, setModalVisible] = useState(false)
 
   return (
     <View style={styles.container}>
@@ -52,7 +55,7 @@ export default function Report({
                 <TouchableOpacity onPress={() => {openForm(id.toString())}}>
                   <IconSymbol size={28} name="square.and.pencil" color={'blue'} style={{marginRight: 15}} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => {onDelete(id)}}>
+                <TouchableOpacity onPress={() => {setModalVisible(true)}}>
                   <IconSymbol size={28} name="trash" color={'red'} />
                 </TouchableOpacity>
               </View>
@@ -67,6 +70,16 @@ export default function Report({
           {adressLocation && <Text style={styles.info}>📍 {adressLocation}</Text>}
           <Text style={styles.info}>📅 {date}</Text>
         </View>
+
+        <ConfirmModal
+          visible={modalVisible}
+          message="Deseja excluir esta denúncia?"
+          onConfirm={() => {
+            onDelete(id);
+            setModalVisible(false);
+          }}
+          onCancel={() => setModalVisible(false)}
+        />
       </View>
     </View>
   );

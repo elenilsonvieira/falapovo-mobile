@@ -5,9 +5,9 @@ import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 
-import RemoveReport from "@/components/RemoveReport";
 import Report from "@/components/report/Report";
 import { useToast } from '@/contexts/ToastContext';
+import RemoveReport from "@/hooks/RemoveReport";
 import { IReport } from "@/interfaces/IReport";
 
 export default function ReportsList() {

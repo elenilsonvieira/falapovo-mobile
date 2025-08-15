@@ -20,8 +20,8 @@ import { IReport } from "@/interfaces/IReport";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 
-import EditReport from "@/components/EditReport";
 import { useToast } from "@/contexts/ToastContext";
+import EditReport from "@/hooks/EditReport";
 import { useAuth } from "@/lib/auth";
 import * as Location from "expo-location";
 import MapView, { Marker } from 'react-native-maps';
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
   dropdownBox: { backgroundColor: "#fff", borderColor: "#ccc", borderRadius: 12 },
   buttonPhoto: { backgroundColor: "#4267B2", paddingVertical: 12, borderRadius: 12, marginBottom: 16, alignItems: 'center' },
   previewImage: { width: "100%", height: 220, borderRadius: 14, marginBottom: 12, resizeMode: "cover" },
-  buttonsContainer: { flexDirection: "row", justifyContent: "space-between", gap: 12, marginTop: 10 },
+  buttonsContainer: { flexDirection: "row", justifyContent: "space-between", gap: 12, marginTop: 10, marginBottom: 25 },
   buttonSave: { backgroundColor: "#28a745", paddingVertical: 14, borderRadius: 12, flex: 1, alignItems: 'center' },
   buttonCancel: { backgroundColor: "#dc3545", paddingVertical: 14, borderRadius: 12, flex: 1, alignItems: 'center' },
   buttonText: { color: "#fff", fontWeight: "600", fontSize: 16 },
