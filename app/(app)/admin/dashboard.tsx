@@ -56,7 +56,14 @@ export default function AdminDashboard() {
       {viewMode === 'archived' && (
         <FlatList
           data={archivedReports}
-          renderItem={({ item }) => <AdminReportCard report={item} isArchived />}
+          renderItem={({ item }) => (
+            <AdminReportCard
+              report={item}
+              isArchived
+              onDelete={onDelete}
+              onArchive={handleArchive}
+            />
+          )}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.list}
           ListEmptyComponent={<Text style={styles.emptyText}>Nenhuma denúncia arquivada.</Text>}

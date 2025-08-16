@@ -24,7 +24,7 @@
     "package": "com.falapovo.app",
     "config": {
       "googleMaps": {
-        "apiKey": "***REMOVED***"
+        "apiKey": "AIzaSyBWEu9VlKy2FMVMnShE2qPH0G2lkqiRaas"
       }
     },
     "web": {

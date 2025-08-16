@@ -52,9 +52,12 @@ export default function Report({
 
             <View style={styles.rightSection}>
               <View style={styles.actions}>
-                <TouchableOpacity onPress={() => {openForm(id.toString())}}>
-                  <IconSymbol size={28} name="square.and.pencil" color={'blue'} style={{marginRight: 15}} />
-                </TouchableOpacity>
+                {}
+                {status === 'Em análise' && (
+                  <TouchableOpacity onPress={() => {openForm(id.toString())}}>
+                    <IconSymbol size={28} name="square.and.pencil" color={'blue'} style={{marginRight: 15}} />
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity onPress={() => {setModalVisible(true)}}>
                   <IconSymbol size={28} name="trash" color={'red'} />
                 </TouchableOpacity>
@@ -84,6 +87,7 @@ export default function Report({
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

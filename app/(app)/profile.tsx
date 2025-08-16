@@ -1,12 +1,13 @@
+import ConfirmModal from '@/components/ui/ConfirmModal';
 import { useToast } from '@/contexts/ToastContext';
+import RemoveReport from '@/hooks/RemoveReport';
+import { useMyReports } from '@/hooks/useMyReports';
 import { IReport } from '@/interfaces/IReport';
 import { useAuth } from '@/lib/auth';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { ActivityIndicator, Button, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -15,28 +16,12 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { showToast } = useToast();
   const insets = useSafeAreaInsets();
-  const [myReports, setMyReports] = useState<IReport[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchMyReports = async () => {
-        if (!user?.email) { setIsLoading(false); return; }
-        try {
-          setIsLoading(true);
-          const data = await AsyncStorage.getItem('@FalaPovoApp:reports');
-          const allReports: IReport[] = data ? JSON.parse(data) : [];
-          const userReports = allReports.filter(report => report.authorEmail === user.email);
-          setMyReports(userReports.reverse());
-        } catch (error) {
-          console.error("Erro ao buscar os meus relatos:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      fetchMyReports();
-    }, [user])
-  );
+  const { isLoading, myReports, refetchMyReports } = useMyReports();
+  
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [reportToDelete, setReportToDelete] = useState<number | null>(null);
 
   const handleLogout = () => {
     showToast('Você saiu com sucesso!', 'success');
@@ -67,22 +52,67 @@ export default function ProfileScreen() {
     showToast('Foto de perfil removida.', 'success');
   };
 
+  const onDelete = (id: number) => {
+    setReportToDelete(id);
+    setIsModalVisible(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (reportToDelete === null) return;
+
+    
+    const newReportList = await RemoveReport(reportToDelete, myReports.slice().reverse(), '@FalaPovoApp:reports');
+    if (newReportList.length < myReports.length) {
+      showToast("Denúncia removida com sucesso!", 'success');
+      refetchMyReports(); 
+    } else {
+      showToast("Não foi possível remover a denúncia.", 'error');
+    }
+    setIsModalVisible(false);
+    setReportToDelete(null);
+  };
+
   const renderReportItem = ({ item }: { item: IReport }) => (
-    <TouchableOpacity 
-      style={styles.reportItem} 
-      onPress={() => router.push({ pathname: '/screens/showReport', params: { id: item.id.toString() } })}
-    >
-      <View>
-        <Text style={styles.reportCategory}>{item.category}</Text>
-        <Text style={styles.reportMessage} numberOfLines={1}>{item.message}</Text>
+    <View style={styles.reportItem}>
+      <TouchableOpacity 
+        style={styles.reportInfo}
+        onPress={() => router.push({ pathname: '/screens/showReport', params: { id: item.id.toString() } })}
+      >
+        <View>
+          <Text style={styles.reportCategory}>{item.category}</Text>
+          <Text style={styles.reportMessage} numberOfLines={1}>{item.message}</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={24} color="#ccc" />
+      </TouchableOpacity>
+      
+      <View style={styles.reportActions}>
+        {item.status === 'Em análise' && (
+          <TouchableOpacity 
+            style={[styles.actionButton, styles.editButton]}
+            onPress={() => router.push({ pathname: '/screens/reportForm', params: { id: item.id.toString() }})}
+          >
+            <Text style={styles.actionButtonText}>Editar</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity 
+          style={[styles.actionButton, styles.deleteButton]}
+          onPress={() => onDelete(item.id)}
+        >
+          <Text style={styles.actionButtonText}>Excluir</Text>
+        </TouchableOpacity>
       </View>
-      <Ionicons name="chevron-forward" size={24} color="#ccc" />
-    </TouchableOpacity>
+    </View>
   );
 
   return (
     <View style={styles.container}>
-      {}
+      <ConfirmModal
+        visible={isModalVisible}
+        message="Você tem a certeza de que quer apagar esta denúncia? Esta ação não pode ser desfeita."
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setIsModalVisible(false)}
+      />
+
       <TouchableOpacity 
         onPress={() => router.back()} 
         style={[styles.backButton, { top: insets.top + 15 }]}
@@ -146,9 +176,42 @@ const styles = StyleSheet.create({
   userEmail: { fontSize: 16, color: '#666' },
   reportsSection: { flex: 1, marginTop: 20 },
   reportsTitle: { fontSize: 18, fontWeight: 'bold', color: '#333', paddingHorizontal: 20, marginBottom: 10 },
-  reportItem: { backgroundColor: '#fff', paddingHorizontal: 20, paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: '#eee', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  reportItem: {
+    backgroundColor: '#fff',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  reportInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   reportCategory: { fontWeight: 'bold', color: '#007bff' },
   reportMessage: { color: '#555', marginTop: 4 },
+  reportActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 15,
+    gap: 10,
+  },
+  actionButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+  },
+  editButton: {
+    backgroundColor: '#ffc107',
+  },
+  deleteButton: {
+    backgroundColor: '#dc3545',
+  },
+  actionButtonText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
   noReportsText: { textAlign: 'center', marginTop: 30, color: '#888', fontSize: 16 },
   logoutButtonContainer: { margin: 20 },
 });

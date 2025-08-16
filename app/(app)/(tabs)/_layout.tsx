@@ -6,11 +6,9 @@ import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useAuth } from '../../lib/auth';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { user } = useAuth();
 
   return (
     <Tabs
@@ -32,26 +30,19 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
-      
-      {}
+      {/* As telas abaixo fazem parte do grupo de abas, mas estão escondidas da barra de navegação */}
       <Tabs.Screen
         name="reportsList"
         options={{
-          title: 'Relatos',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="chevron.right" color={color} />,
-          href: user?.isAdmin ? null : '/reportsList',
+          href: null, // 'href: null' esconde a aba
         }}
       />
-      
       <Tabs.Screen
         name="suportScreen"
         options={{
-          title: 'Suporte',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="chevron.right" color={color} />,
-          href: user?.isAdmin ? null : '/suportScreen',
+          href: null, // 'href: null' esconde a aba
         }}
       />
-      
     </Tabs>
   );
 }

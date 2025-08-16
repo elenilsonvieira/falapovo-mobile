@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 
+import { IComment } from "@/interfaces/IComment";
 import { IReport } from "@/interfaces/IReport";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -28,7 +29,7 @@ import MapView, { Marker } from 'react-native-maps';
 
 export default function ReportForm() {
   const { id } = useLocalSearchParams();
-  const { showToast } = useToast();
+  const { showToast } = useToast(); 
   const { user } = useAuth();
   
   const [message, setMessage] = useState("");
@@ -58,9 +59,7 @@ export default function ReportForm() {
             setMapLocation(selectedReport.mapLocation);
         }
     } catch (error: any) {
-      showToast(`Erro ao carregar os dados: ${error.message}`, 'error');
-    } finally {
-      setLoadingLocation(false);
+      showToast(`Erro ao carregar os dados da denúncia: ${error.message}`, 'error');
     }
   }, [showToast]);
 
@@ -96,6 +95,17 @@ export default function ReportForm() {
     }
   }, [id, loadReportData, getLocation]);
 
+  const getCurrentDate = (separator = "") => {
+    let newDate = new Date();
+    let date = newDate.getDate();
+    let month = newDate.getMonth() + 1;
+    let year = newDate.getFullYear();
+
+    return `${date < 10 ? `0${date}` : `${date}`}${separator}${
+      month < 10 ? `0${month}` : `${month}`
+    }${separator}${year}`;
+  };
+
   const onAdd = async () => {
     if (!message || !selectedCategory) {
       showToast("A descrição e a categoria são obrigatórias.", 'error');
@@ -119,15 +129,16 @@ export default function ReportForm() {
         );
         showToast("Denúncia atualizada com sucesso!", 'success');
       } else {
+        const commentsField: IComment[] = [];
         const newReport: IReport = {
           id: Date.now(),
           message,
           category: selectedCategory ?? '',
           adressLocation,
-          createdAt: new Date().toLocaleDateString('pt-BR'),
+          createdAt: getCurrentDate("/"),
           image: photoUri ?? "",
           status: "Em análise",
-          comments: [],
+          comments: commentsField,
           mapLocation,
           authorEmail: user?.email
         };
@@ -135,7 +146,8 @@ export default function ReportForm() {
         await AsyncStorage.setItem("@FalaPovoApp:reports", JSON.stringify(updateReports));
         showToast("Denúncia criada com sucesso!", 'success');
       }
-      router.replace("/(tabs)/reportsList" as any);
+
+     router.back();
     } catch (error: any) {
       console.error("Erro ao salvar:", error);
       showToast(`Não foi possível salvar a denúncia: ${error.message}`, 'error');
@@ -143,6 +155,7 @@ export default function ReportForm() {
   };
 
   const onCancel = () => {
+    
     router.back();
   };
 
@@ -264,7 +277,7 @@ const styles = StyleSheet.create({
   dropdownBox: { backgroundColor: "#fff", borderColor: "#ccc", borderRadius: 12 },
   buttonPhoto: { backgroundColor: "#4267B2", paddingVertical: 12, borderRadius: 12, marginBottom: 16, alignItems: 'center' },
   previewImage: { width: "100%", height: 220, borderRadius: 14, marginBottom: 12, resizeMode: "cover" },
-  buttonsContainer: { flexDirection: "row", justifyContent: "space-between", gap: 12, marginTop: 10, marginBottom: 25 },
+  buttonsContainer: { flexDirection: "row", justifyContent: "space-between", gap: 12, marginTop: 10 },
   buttonSave: { backgroundColor: "#28a745", paddingVertical: 14, borderRadius: 12, flex: 1, alignItems: 'center' },
   buttonCancel: { backgroundColor: "#dc3545", paddingVertical: 14, borderRadius: 12, flex: 1, alignItems: 'center' },
   buttonText: { color: "#fff", fontWeight: "600", fontSize: 16 },
