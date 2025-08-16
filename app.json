@@ -24,7 +24,7 @@
     "package": "com.falapovo.app",
     "config": {
       "googleMaps": {
-        "apiKey": "AIzaSyBWEu9VlKy2FMVMnShE2qPH0G2lkqiRaas"
+        "apiKey": " process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY"
       }
     },
     "web": {
