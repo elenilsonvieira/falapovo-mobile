@@ -54,13 +54,17 @@ export default function Report({
               <View style={styles.actions}>
                 {}
                 {status === 'Em análise' && (
-                  <TouchableOpacity onPress={() => {openForm(id.toString())}}>
-                    <IconSymbol size={28} name="square.and.pencil" color={'blue'} style={{marginRight: 15}} />
-                  </TouchableOpacity>
+                  <>
+                    <TouchableOpacity onPress={() => {openForm(id.toString())}}>
+                      <IconSymbol size={28} name="square.and.pencil" color={'blue'} style={{marginRight: 15}} />
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity onPress={() => {setModalVisible(true)}}>
+                      <IconSymbol size={28} name="trash" color={'red'} />
+                    </TouchableOpacity>
+                  </>
                 )}
-                <TouchableOpacity onPress={() => {setModalVisible(true)}}>
-                  <IconSymbol size={28} name="trash" color={'red'} />
-                </TouchableOpacity>
+                
               </View>
 
               <Text style={[styles.status, { color, borderColor: color }]}>

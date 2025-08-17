@@ -87,19 +87,22 @@ export default function ProfileScreen() {
       
       <View style={styles.reportActions}>
         {item.status === 'Em análise' && (
-          <TouchableOpacity 
-            style={[styles.actionButton, styles.editButton]}
-            onPress={() => router.push({ pathname: '/screens/reportForm', params: { id: item.id.toString() }})}
-          >
-            <Text style={styles.actionButtonText}>Editar</Text>
-          </TouchableOpacity>
+          <>
+            <TouchableOpacity 
+              style={[styles.actionButton, styles.editButton]}
+              onPress={() => router.push({ pathname: '/screens/reportForm', params: { id: item.id.toString() }})}
+            >
+              <Text style={styles.actionButtonText}>Editar</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.actionButton, styles.deleteButton]}
+              onPress={() => onDelete(item.id)}
+            >
+              <Text style={styles.actionButtonText}>Excluir</Text>
+            </TouchableOpacity>
+          </>
         )}
-        <TouchableOpacity 
-          style={[styles.actionButton, styles.deleteButton]}
-          onPress={() => onDelete(item.id)}
-        >
-          <Text style={styles.actionButtonText}>Excluir</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
