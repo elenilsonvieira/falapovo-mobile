@@ -1,5 +1,6 @@
 import { useToast } from '@/contexts/ToastContext';
 import RemoveReport from '@/hooks/RemoveReport';
+import { INotification } from '@/interfaces/INotification';
 import { IReport, ReportStatus } from '@/interfaces/IReport';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
@@ -7,6 +8,7 @@ import { useCallback, useState } from 'react';
 
 const REPORTS_KEY = '@FalaPovoApp:reports';
 const ARCHIVED_KEY = '@FalaPovoApp:archived_reports';
+const NOTIFICATIONS_KEY = '@FalaPovoApp:notifications';
 const ARCHIVE_DELAY_DAYS = 30; 
 
 export function useAdminReports() {
@@ -77,16 +79,37 @@ export function useAdminReports() {
     try {
       const data = await AsyncStorage.getItem(REPORTS_KEY);
       let currentReports: IReport[] = data ? JSON.parse(data) : [];
+      let authorEmail: string | null | undefined;
+
       const updatedReports = currentReports.map(report => {
         if (report.id === id) {
+          authorEmail = report.authorEmail;
           const completedAt = status === 'Concluído' ? new Date().toISOString() : report.completedAt;
           return { ...report, status, completedAt };
         }
         return report;
       });
+
       await AsyncStorage.setItem(REPORTS_KEY, JSON.stringify(updatedReports));
-      setActiveReports(updatedReports.reverse()); 
+      setActiveReports(updatedReports.reverse());
       showToast("Status atualizado com sucesso!", 'success');
+
+      if (authorEmail) {
+        const notificationsData = await AsyncStorage.getItem(NOTIFICATIONS_KEY);
+        const notifications: INotification[] = notificationsData ? JSON.parse(notificationsData) : [];
+        
+        const newNotification: INotification = {
+          id: Date.now(),
+          userEmail: authorEmail,
+          reportId: id,
+          message: `O status da sua denúncia foi atualizado para: "${status}"`,
+          read: false,
+          createdAt: new Date().toISOString(),
+        };
+
+        await AsyncStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify([newNotification, ...notifications]));
+      }
+
     } catch (error: any) {
       showToast(`Não foi possível atualizar o status: ${error.message}`, 'error');
     }

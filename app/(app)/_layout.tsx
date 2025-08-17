@@ -3,21 +3,20 @@ import { Ionicons } from '@expo/vector-icons';
 import { Drawer } from 'expo-router/drawer';
 
 export default function AppLayout() {
-  useAuth();
+  const { user } = useAuth();
 
   return (
     <Drawer
       screenOptions={{
         headerTintColor: '#333',
         drawerActiveTintColor: '#007bff',
-        
         drawerLabelStyle: {
           marginLeft: 20,
         },
       }}
     >
       <Drawer.Screen
-        name="(tabs)"
+        name="(tabs)" 
         options={{
           drawerLabel: 'Início',
           title: 'FalaPovo',
@@ -27,7 +26,7 @@ export default function AppLayout() {
         }}
       />
       <Drawer.Screen
-        name="reportsList"
+        name="reportsList" 
         options={{
           drawerLabel: 'Ver Relatos',
           title: 'Relatos de Problemas',
@@ -46,8 +45,17 @@ export default function AppLayout() {
           ),
         }}
       />
-      
-      {}
+      <Drawer.Screen
+        name="notifications" 
+        options={{
+          drawerLabel: 'Notificações',
+          title: 'Notificações',
+          drawerIcon: ({ size, color }) => (
+            <Ionicons name="notifications-outline" size={size} color={color} />
+          ),
+          href: user?.isAnonymous ? null : '/notifications',
+        }}
+      />
       <Drawer.Screen
         name="profile"
         options={{
@@ -56,9 +64,9 @@ export default function AppLayout() {
           drawerIcon: ({ size, color }) => (
             <Ionicons name="person-outline" size={size} color={color} />
           ),
+          href: user?.isAnonymous ? null : '/profile',
         }}
       />
-      
       <Drawer.Screen
         name="admin"
         options={{
@@ -67,6 +75,7 @@ export default function AppLayout() {
           drawerIcon: ({ size, color }) => (
             <Ionicons name="cog-outline" size={size} color={color} />
           ),
+          href: (user && !user.isAnonymous && user.isAdmin) ? '/admin' : null,
         }}
       />
     </Drawer>
