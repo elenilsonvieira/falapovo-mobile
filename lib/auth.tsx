@@ -6,7 +6,7 @@ interface User {
   id: string;
   email: string | null;      
   name?: string;
-  isAdmin?: boolean; 
+  isadmin?: boolean; 
   photoUri?: string;
   isAnonymous?: boolean;     
 }

@@ -75,7 +75,7 @@ export default function AppLayout() {
           drawerIcon: ({ size, color }) => (
             <Ionicons name="cog-outline" size={size} color={color} />
           ),
-          href: (user && !user.isAnonymous && user.isAdmin) ? '/admin' : null,
+          href: (user && !user.isAnonymous && user.isadmin) ? '/admin' : null,
         }}
       />
     </Drawer>
