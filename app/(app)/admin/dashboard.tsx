@@ -9,10 +9,9 @@ import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View }
 type ViewMode = 'list' | 'summary' | 'archived';
 
 export default function AdminDashboard() {
-  const { isLoading, activeReports, archivedReports, handleUpdateStatus, handleArchive, refetchData } = useAdminReports();
+  const { isLoading, activeReports, archivedReports, handleUpdateStatus, handleUpdatePriority, handleArchive, refetchData } = useAdminReports();
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const { showToast } = useToast();
-
 
   const onDelete = async (id: number) => {
     const newReportList = await RemoveReport(id, activeReports.slice().reverse(), '@FalaPovoApp:reports');
@@ -31,6 +30,9 @@ export default function AdminDashboard() {
 
   return (
     <View style={styles.container}>
+      {/* Título adicionado aqui para garantir que ele apareça */}
+      <Text style={styles.title}>Painel Administrativo</Text>
+
       <View style={styles.toggleContainer}>
         <TouchableOpacity style={[styles.toggleButton, viewMode === 'list' && styles.toggleButtonActive]} onPress={() => setViewMode('list')}>
           <Text style={[styles.toggleText, viewMode === 'list' && styles.toggleTextActive]}>Ativas ({activeReports.length})</Text>
@@ -46,7 +48,15 @@ export default function AdminDashboard() {
       {viewMode === 'list' && (
         <FlatList
           data={activeReports}
-          renderItem={({ item }) => <AdminReportCard report={item} onUpdateStatus={handleUpdateStatus} onDelete={onDelete} onArchive={handleArchive} />}
+          renderItem={({ item }) => (
+            <AdminReportCard
+              report={item}
+              onUpdateStatus={handleUpdateStatus}
+              onUpdatePriority={handleUpdatePriority}
+              onDelete={onDelete}
+              onArchive={handleArchive}
+            />
+          )}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.list}
           ListEmptyComponent={<Text style={styles.emptyText}>Nenhuma denúncia ativa encontrada.</Text>}
@@ -60,6 +70,8 @@ export default function AdminDashboard() {
             <AdminReportCard
               report={item}
               isArchived
+              onUpdateStatus={handleUpdateStatus}
+              onUpdatePriority={handleUpdatePriority}
               onDelete={onDelete}
               onArchive={handleArchive}
             />
@@ -74,6 +86,14 @@ export default function AdminDashboard() {
 }
 
 const styles = StyleSheet.create({
+  // Estilo do título adicionado aqui
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 16,
+    color: '#333'
+  },
   container: { flex: 1, backgroundColor: "#f0f2f5" },
   loader: { flex: 1, justifyContent: "center", alignItems: "center" },
   list: { padding: 16 },

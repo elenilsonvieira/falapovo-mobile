@@ -1,7 +1,7 @@
 import { useToast } from '@/contexts/ToastContext';
 import RemoveReport from '@/hooks/RemoveReport';
 import { INotification } from '@/interfaces/INotification';
-import { IReport, ReportStatus } from '@/interfaces/IReport';
+import { IReport, ReportPriority, ReportStatus } from '@/interfaces/IReport';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -9,7 +9,7 @@ import { useCallback, useState } from 'react';
 const REPORTS_KEY = '@FalaPovoApp:reports';
 const ARCHIVED_KEY = '@FalaPovoApp:archived_reports';
 const NOTIFICATIONS_KEY = '@FalaPovoApp:notifications';
-const ARCHIVE_DELAY_DAYS = 30; 
+const ARCHIVE_DELAY_DAYS = 30;
 
 export function useAdminReports() {
   const [activeReports, setActiveReports] = useState<IReport[]>([]);
@@ -59,7 +59,7 @@ export function useAdminReports() {
       let archived = archivedData ? JSON.parse(archivedData) : [];
 
       const result = await archiveOldReports(active, archived);
-
+      
       setActiveReports(result.active.reverse());
       setArchivedReports(result.archived.reverse());
     } catch (error: any) {
@@ -115,6 +115,28 @@ export function useAdminReports() {
     }
   };
 
+  const handleUpdatePriority = async (id: number, priority: ReportPriority) => {
+    try {
+      const data = await AsyncStorage.getItem(REPORTS_KEY);
+      let currentReports: IReport[] = data ? JSON.parse(data) : [];
+      
+      const updatedReports = currentReports.map(report => {
+        if (report.id === id) {
+          return { ...report, priority };
+        }
+        return report;
+      });
+
+      await AsyncStorage.setItem(REPORTS_KEY, JSON.stringify(updatedReports));
+      setActiveReports(updatedReports.reverse());
+      showToast(`Prioridade atualizada para: "${priority}"`, 'success');
+
+    } catch (error: any) {
+      showToast(`Não foi possível atualizar a prioridade: ${error.message}`, 'error');
+    }
+  };
+
+
   const onDelete = async (id: number) => {
     const newReportList = await RemoveReport(id, activeReports.slice().reverse(), REPORTS_KEY);
     
@@ -152,6 +174,7 @@ export function useAdminReports() {
     activeReports,
     archivedReports,
     handleUpdateStatus,
+    handleUpdatePriority,
     onDelete,
     handleArchive,
     refetchData: fetchData,
