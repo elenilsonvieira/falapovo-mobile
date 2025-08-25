@@ -16,7 +16,7 @@ export default function AppLayout() {
       }}
     >
       <Drawer.Screen
-        name="(tabs)" 
+        name="(tabs)"
         options={{
           drawerLabel: 'Início',
           title: 'FalaPovo',
@@ -26,7 +26,7 @@ export default function AppLayout() {
         }}
       />
       <Drawer.Screen
-        name="reportsList" 
+        name="reportsList"
         options={{
           drawerLabel: 'Ver Relatos',
           title: 'Relatos de Problemas',
@@ -46,7 +46,7 @@ export default function AppLayout() {
         }}
       />
       <Drawer.Screen
-        name="notifications" 
+        name="notifications"
         options={{
           drawerLabel: 'Notificações',
           title: 'Notificações',
@@ -56,6 +56,19 @@ export default function AppLayout() {
           href: user?.isAnonymous ? null : '/notifications',
         }}
       />
+      
+      {}
+      <Drawer.Screen
+        name="about" 
+        options={{
+          drawerLabel: 'Sobre',
+          title: 'Sobre o FalaPovo',
+          drawerIcon: ({ size, color }) => (
+            <Ionicons name="information-circle-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      
       <Drawer.Screen
         name="profile"
         options={{
@@ -67,6 +80,7 @@ export default function AppLayout() {
           href: user?.isAnonymous ? null : '/profile',
         }}
       />
+      
       <Drawer.Screen
         name="admin"
         options={{
