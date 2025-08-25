@@ -48,7 +48,7 @@ export default function ShowReportScreen() {
         message: comment,
         author: user.name || user.email || 'Anónimo',
         createdAt: new Date().toLocaleDateString('pt-BR'),
-        isReply: user.isAdmin,
+        isReply: user.isadmin,
       };
 
       const updatedReports = reports.map(r =>
@@ -111,7 +111,7 @@ export default function ShowReportScreen() {
 
         <View style={styles.commentInputRow}>
           <TextInput
-            placeholder={user?.isAdmin ? "Responder como administrador..." : "Adicionar comentário..."}
+            placeholder={user?.isadmin ? "Responder como administrador..." : "Adicionar comentário..."}
             style={styles.inputComment}
             value={comment}
             onChangeText={setComment}

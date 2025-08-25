@@ -14,14 +14,14 @@ export default function HomeScreen() {
       <Text style={styles.title}>Bem-vindo, {user?.name || 'Usuário'}!</Text>
       <Text style={styles.email}>{user?.email}</Text>
       
-      {!user?.isAdmin && (
+      {!user?.isadmin && (
         <Pressable style={styles.button} onPress={() => router.push('/reportsList' as any)}>
           <Text style={styles.buttonText}>Ver Relatos de Problemas</Text>
         </Pressable>
       )}
 
       {}
-      {user && !user.isAnonymous && user.isAdmin && (
+      {user && !user.isAnonymous && user.isadmin && (
         <Pressable 
           style={[styles.button, styles.adminButton]} 
           onPress={() => router.push('/admin/dashboard' as any)}

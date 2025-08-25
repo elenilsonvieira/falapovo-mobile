@@ -37,7 +37,7 @@ export default function RouteGuard({ children, adminOnly = false, registeredOnly
     return <UnauthorizedRedirect message="Você precisa de uma conta para aceder a esta página." />;
   }
   
-  if (adminOnly && user && !user.isAdmin) {
+  if (adminOnly && user && !user.isadmin) {
     return <UnauthorizedRedirect message="Você não tem permissão para aceder a esta página." />;
   }
 
